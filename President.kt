@@ -15,6 +15,10 @@ public class President{
     }
     fun start(){
         println("President")
+        val playerOne=Players.get(0)
+        val searchIndex= readLine()!!.toInt()
+        val foundIndex=util.searchCard(playerOne.hand,0,playerOne.hand.size,searchIndex)
+        playerOne.hand.get(foundIndex).printCardLn()
     }
     fun presConvert(card:String):Int{
         val newVal:Int

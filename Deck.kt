@@ -1,5 +1,6 @@
 public class Deck{
-    val cards:MutableList<Cards> = mutableListOf()
+    private val cards:MutableList<Cards> = mutableListOf()
+    val util=Util()
     init{
         for(suit in Suits.values()){
             for(i in 1..13){
@@ -7,9 +8,11 @@ public class Deck{
             }
         }
     }
+    fun shuffleDeck(){
+        cards.shuffle()
+    }
+    fun getDeck():MutableList<Cards> = cards
     fun printDeck(){
-        for(card in cards){
-            card.printCard()
-        }
+        util.printCardsInLine(cards)
     }
 }

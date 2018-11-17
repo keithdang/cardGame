@@ -3,12 +3,14 @@ enum class Suits{
 }
 public class Cards(private val num:Int, private val suit:Suits,val styleValue:String.()->Int){
     private val util=Util()
-    private val perceivedValue=util.genCardName(num).styleValue()
+    private val cardName=util.genCardName(num)
+    private val perceivedValue=cardName.styleValue()
+
     fun printCardLn(){
-        println("${num} of ${suit}")
+        println("${cardName} of ${suit}")
     }
     fun printCardTab(){
-        print("${num} of ${suit},\t")
+        print("${cardName} of ${suit},\t")
     }
     fun getPerceivedValue():Int=perceivedValue
 }

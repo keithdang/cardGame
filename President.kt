@@ -1,13 +1,20 @@
 public class President{
-    fun start(){
-        println("President")
-        val util=Util()
+    val Players:MutableList<Player> = mutableListOf()
+    val util=Util()
+    val presValue:String.()->Int={
+        presConvert(this)
+    }
+    init{
         val deck=Deck(presValue)
         deck.shuffleDeck()
-        val playerOne=Player(deck.getDeck().subList(0,13).toMutableList())
-        util.printCardsInLine(playerOne.hand)
-        util.sortHand(playerOne.hand)
-        util.printCardsInLine(playerOne.hand)
+        for(i in 1..4){
+            Players.add(Player(deck.getDeck().subList((i-1)*13,i*13).toMutableList()))
+            util.sortHand(Players.get(i-1).hand)
+            util.printCardsInLine(Players.get(i-1).hand)
+        }
+    }
+    fun start(){
+        println("President")
     }
     fun presConvert(card:String):Int{
         val newVal:Int
@@ -20,8 +27,5 @@ public class President{
             else->newVal=card.toInt()
         }
         return newVal
-    }
-    val presValue:String.()->Int={
-        presConvert(this)
     }
 }

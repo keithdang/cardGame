@@ -1,18 +1,22 @@
-public class Deck{
+public class Deck(styleValue:String.()->Int){
     private val cards:MutableList<Cards> = mutableListOf()
     val util=Util()
     init{
         for(suit in Suits.values()){
             for(i in 1..13){
-                cards.add(Cards(i,suit))
+                cards.add(Cards(i,suit,styleValue))
             }
         }
     }
     fun shuffleDeck(){
         cards.shuffle()
     }
+    fun sortDeck(){
+        cards.sortBy { it.getPerceivedValue() }
+    }
     fun getDeck():MutableList<Cards> = cards
     fun printDeck(){
         util.printCardsInLine(cards)
+        println()
     }
 }

@@ -1,6 +1,7 @@
 public class President{
     val Players:MutableList<Player> = mutableListOf()
     val util=Util()
+    val activeCards:MutableList<Cards> = mutableListOf()
     val presValue:String.()->Int={
         presConvert(this)
     }
@@ -9,16 +10,30 @@ public class President{
         deck.shuffleDeck()
         for(i in 1..4){
             Players.add(Player(deck.getDeck().subList((i-1)*13,i*13).toMutableList()))
-            util.sortHand(Players.get(i-1).hand)
-            util.printCardsInLine(Players.get(i-1).hand)
+            util.sortHand(Players.get(i-1).getHand())
+            util.printCardsInLine(Players.get(i-1).getHand())
         }
     }
     fun start(){
         println("President")
-        val playerOne=Players.get(0)
-        val searchIndex= readLine()!!.toInt()
-        val foundIndex=util.searchCard(playerOne.hand,0,playerOne.hand.size,searchIndex)
-        playerOne.hand.get(foundIndex).printCardLn()
+        for(i in 1..Players.size){
+            playerTurn(i)
+        }
+    }
+    fun playerTurn(num:Int){
+        val hand=Players.get(num-1).getHand()
+        val searchIndex:Int
+        if(num==1){
+            searchIndex= readLine()!!.toInt()
+        }else{
+            searchIndex = activeCards.get(0).getPerceivedValue()
+        }
+        val foundIndex=util.searchCard(hand,0,hand.size,searchIndex)
+        activeCards.clear()
+        activeCards.add(hand.get(foundIndex))
+        hand.removeAt(foundIndex)
+        util.printCardsInLine(activeCards)
+        util.printCardsInLine(hand)
     }
     fun presConvert(card:String):Int{
         val newVal:Int

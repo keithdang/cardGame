@@ -62,7 +62,7 @@ public class President{
     private fun getIndex(playerNum:Int,hand:MutableList<Cards>):Int{
         val foundIndex:Int
         if(playerNum==1){
-            foundIndex=inputCard(hand)
+            foundIndex=inputCard(hand)[0]
         }else{
             if(activeCards.size==0){
                 foundIndex=0
@@ -73,17 +73,22 @@ public class President{
         }
         return foundIndex
     }
-    private fun inputCard(hand:MutableList<Cards>):Int{
+    private fun inputCard(hand:MutableList<Cards>):MutableList<Int>{
         print("Select Card (s for skip):\n")
+        var numList:MutableList<Int> = mutableListOf()
         val input=readLine()!!
         when{
-            input.equals("s")->return -1
-            input.toIntOrNull() != null
-                    && input.toInt() in 1..hand.size
-                    && (activeCards.size == 0 || hand[input.toInt()-1].getPerceivedValue()>activeCards[0].getPerceivedValue())
-                    ->return (input.toInt() -1)
-            else->return inputCard(hand)
+            input.equals("s")->numList.add(-1)
+            input.toIntOrNull() != null-> {
+                when {
+                    input.toInt() in 1..hand.size
+                            && (activeCards.size == 0 || hand[input.toInt() - 1].getPerceivedValue() >= activeCards[0].getPerceivedValue())->numList.add(input.toInt() -1)
+                    else->numList=inputCard(hand)
+                }
+            }
+            else->numList=inputCard(hand)
         }
+        return numList
     }
     private fun presConvert(card:String):Int{
         val newVal:Int

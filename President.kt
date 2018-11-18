@@ -1,18 +1,18 @@
 public class President{
-    val Players:MutableList<Player> = mutableListOf()
-    val util=Util()
-    val activeCards:MutableList<Cards> = mutableListOf()
-    val presValue:String.()->Int={
+    private val Players:MutableList<Player> = mutableListOf()
+    private val util=Util()
+    private val activeCards:MutableList<Cards> = mutableListOf()
+    private val presValue:String.()->Int={
         presConvert(this)
     }
-    var turnCount=1
+    private var turnCount=1
     init{
         val deck=Deck(presValue)
         deck.shuffleDeck()
         for(i in 1..4){
             Players.add(Player(deck.getDeck().subList((i-1)*13,i*13).toMutableList()))
-            util.sortHand(Players.get(i-1).getHand())
-            util.printCardsInLine(Players.get(i-1).getHand())
+            util.sortHand(Players[i-1].getHand())
+            util.printCardsInLine(Players[i-1].getHand())
         }
     }
     fun start(){
@@ -21,7 +21,7 @@ public class President{
         while(gameContinue){
             for(i in 1..Players.size){
                 playerTurn(i)
-                if(Players.get(i-1).getHand().size==0){
+                if(Players[i-1].getHand().size==0){
                     gameContinue=false
                     println("Player ${i} wins")
                     break
@@ -30,31 +30,29 @@ public class President{
         }
     }
     private fun playerTurn(num:Int){
-        val hand=Players.get(num-1).getHand()
-        print("Player: ${num}\n")
+        val hand=Players[num-1].getHand()
+        print("Player: $num\n")
         util.printCardsInLine(hand)
         val foundIndex:Int
 
-        if(turnCount==4){
-            activeCards.clear()
-        }
+        if(turnCount==4) activeCards.clear()
+
         foundIndex=getIndex(num,hand)
 
         var goAgain=false
         if(foundIndex!=-1){
-            hand.get(foundIndex).printCardLn()
-            if(activeCards.size>0 && activeCards.get(0).getPerceivedValue()==hand.get(foundIndex).getPerceivedValue()){
+            hand[foundIndex].printCardLn()
+            if(activeCards.size>0 && activeCards[0].getPerceivedValue()==hand[foundIndex].getPerceivedValue()){
                 println("BURN")
                 goAgain=true
                 activeCards.clear()
             }else{
                 activeCards.clear()
-                activeCards.add(hand.get(foundIndex))
+                activeCards.add(hand[foundIndex])
             }
             hand.removeAt(foundIndex)
-            if(goAgain){
-                playerTurn(num)
-            }
+            if(goAgain) playerTurn(num)
+
             turnCount=1
         }else{
             println("Player ${num} couldn't go")
@@ -69,7 +67,7 @@ public class President{
             if(activeCards.size==0){
                 foundIndex=0
             }else{
-                val searchVal = activeCards.get(0).getPerceivedValue()
+                val searchVal = activeCards[0].getPerceivedValue()
                 foundIndex=util.searchCard(hand,0,hand.size-1,searchVal)
             }
         }
@@ -80,7 +78,10 @@ public class President{
         val input=readLine()!!
         when{
             input.equals("s")->return -1
-            input.toIntOrNull()!=null && input.toInt() in 1..hand.size->return input.toInt() -1
+            input.toIntOrNull() != null
+                    && input.toInt() in 1..hand.size
+                    && (activeCards.size == 0 || hand[input.toInt()-1].getPerceivedValue()>activeCards[0].getPerceivedValue())
+                    ->return (input.toInt() -1)
             else->return inputCard(hand)
         }
     }

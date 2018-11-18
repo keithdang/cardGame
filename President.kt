@@ -5,6 +5,7 @@ public class President{
     val presValue:String.()->Int={
         presConvert(this)
     }
+    var turnCount=1
     init{
         val deck=Deck(presValue)
         deck.shuffleDeck()
@@ -16,24 +17,63 @@ public class President{
     }
     fun start(){
         println("President")
-        for(i in 1..Players.size){
-            playerTurn(i)
+        var gameContinue=true
+        while(gameContinue){
+            for(i in 1..Players.size){
+                playerTurn(i)
+                if(Players.get(i-1).getHand().size==0){
+                    gameContinue=false
+                    println("Player ${i} wins")
+                }
+            }
         }
     }
     fun playerTurn(num:Int){
         val hand=Players.get(num-1).getHand()
-        val searchIndex:Int
-        if(num==1){
-            searchIndex= readLine()!!.toInt()
+        val foundIndex:Int
+        if(turnCount==4) foundIndex=0
+        else foundIndex=getIndex(num,hand)
+        var goAgain=false
+        if(foundIndex!=-1){
+            if(activeCards.size>0 && activeCards.get(0).getPerceivedValue()==hand.get(foundIndex).getPerceivedValue()){
+                println("BURN")
+                goAgain=true
+            }
+            activeCards.clear()
+            activeCards.add(hand.get(foundIndex))
+            hand.removeAt(foundIndex)
+            util.printCardsInLineLabel(activeCards)
+            util.printCardsInLine(hand)
+            if(goAgain){
+                playerTurn(num)
+            }
+            turnCount=1
         }else{
-            searchIndex = activeCards.get(0).getPerceivedValue()
+            println("Player ${num} couldn't go")
+            turnCount++
         }
-        val foundIndex=util.searchCard(hand,0,hand.size,searchIndex)
-        activeCards.clear()
-        activeCards.add(hand.get(foundIndex))
-        hand.removeAt(foundIndex)
-        util.printCardsInLine(activeCards)
-        util.printCardsInLine(hand)
+    }
+    fun getIndex(playerNum:Int,hand:MutableList<Cards>):Int{
+        val searchVal:Int
+        val foundIndex:Int
+        if(playerNum==1){
+            print("Select Card (s for skip):\n")
+            val input=readLine()!!
+            if(input.equals("s")){
+                foundIndex=-1
+            }else{
+                searchVal = input.toInt()
+                foundIndex=searchVal-1
+            }
+        }else{
+            if(activeCards.size==0){
+                foundIndex=0
+            }else{
+                searchVal = activeCards.get(0).getPerceivedValue()
+                foundIndex=util.searchCard(hand,0,hand.size-1,searchVal)
+            }
+        }
+        return foundIndex
     }
     fun presConvert(card:String):Int{
         val newVal:Int

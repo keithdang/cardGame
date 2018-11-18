@@ -9,8 +9,11 @@ public class Cards(private val num:Int, private val suit:Suits,val styleValue:St
     fun printCardLn(){
         println("${cardName} of ${suit}")
     }
-    fun printCardTab(){
-        print("${cardName} of ${suit},\t")
+    fun printCardLabel(num:Int){
+        print("${num}:${cardName} of ${suit},\t")
+    }
+    fun printCardTab(num:Int){
+        print("${num}:${cardName} of ${suit},\t")
     }
     fun getPerceivedValue():Int=perceivedValue
 }

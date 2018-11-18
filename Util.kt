@@ -5,8 +5,18 @@ public class Util{
         }
     }
     fun printCardsInLine(cards:MutableList<Cards>){
+        var i=1
         for(card in cards){
-            card.printCardTab()
+            card.printCardTab(i)
+            i++
+        }
+        println()
+    }
+    fun printCardsInLineLabel(cards:MutableList<Cards>){
+        var i=1
+        for(card in cards){
+            card.printCardLabel(i)
+            i++
         }
         println()
     }
@@ -26,9 +36,12 @@ public class Util{
     }
     fun searchCard(hand:MutableList<Cards>,left:Int,right:Int,x:Int):Int{
         if(left==right){
+            if(hand.get(left).getPerceivedValue()<x)return -1
             return left
         }else if(right-left==1){
-          return right
+            if(hand.get(left).getPerceivedValue()>=x)return left
+            else if(hand.get(right).getPerceivedValue()>=x)return right
+            else return -1
         } else if(right>0 && left<right){
             val mid=(right+left)/2
             val midVal=hand.get(mid).getPerceivedValue()

@@ -26,7 +26,7 @@ public class Util{
         }
         println()
     }
-    fun RemoveAllIndicesFromHand(indices: List<Int>, cards: MutableList<Cards>){
+    fun removeAllIndicesFromHand(indices: List<Int>, cards: MutableList<Cards>){
         var count=0
         for(i in indices){
             cards.removeAt(i-count)

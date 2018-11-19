@@ -13,6 +13,8 @@ public class President{
             Players.add(Player(deck.getDeck().subList((i-1)*13,i*13).toMutableList()))
             util.sortHand(Players[i-1].getHand())
             util.printCardsInLine(Players[i-1].getHand())
+            Players[i-1].initializePlayer()
+            Players[i-1].printDoublesInHand()
         }
     }
     fun start(){
@@ -35,54 +37,50 @@ public class President{
         util.printCardsInLine(hand)
         var goAgain=false
         if(turnCount==4) activeCards.clear()
-        val indices:List<Int> = getIndex(num,hand)
+        val indices:List<Int> = getIndex(num)
 
-        if(indices[0]!=-1){
+        if(indices.isNotEmpty() && indices[0]!=-1){
             util.printIndicesOfHand(indices,hand)
             if(activeCards.size>0 && activeCards[0].getPerceivedValue()==hand[indices[0]].getPerceivedValue()){
                 println("BURN")
                 goAgain=true
                 activeCards.clear()
             }else{
-                activeCards.clear()
-                activeCards.add(hand[indices[0]])
+                addEntriesIntoActiveCards(indices,hand)
             }
-            util.RemoveAllIndicesFromHand(indices,hand)
+            util.removeAllIndicesFromHand(indices,hand)
             if(goAgain) playerTurn(num)
             turnCount=1
         }else{
             println("Player ${num} couldn't go")
             turnCount++
         }
-//        if(foundIndex!=-1){
-//            hand[foundIndex].printCardLn()
-//            if(activeCards.size>0 && activeCards[0].getPerceivedValue()==hand[foundIndex].getPerceivedValue()){
-//                println("BURN")
-//                goAgain=true
-//                activeCards.clear()
-//            }else{
-//                activeCards.clear()
-//                activeCards.add(hand[foundIndex])
-//            }
-//            hand.removeAt(foundIndex)
-//            if(goAgain) playerTurn(num)
-//
-//            turnCount=1
-//        }else{
-//            println("Player ${num} couldn't go")
-//            turnCount++
-//        }
     }
-    private fun getIndex(playerNum:Int,hand:MutableList<Cards>):MutableList<Int>{
+    private fun getIndex(playerNum:Int):MutableList<Int>{
         var indices:MutableList<Int> = mutableListOf()
+        val player=Players[playerNum-1]
+        val hand:MutableList<Cards> =  player.getHand()
         if(playerNum==1){
             indices=inputCard(hand)
         }else{
-            if(activeCards.size==0){
-                indices.add(0)
-            }else{
-                val searchVal = activeCards[0].getPerceivedValue()
-                indices.add(util.searchCard(hand,0,hand.size-1,searchVal))
+            player.initializePlayer()
+            when(activeCards.size){
+                0->indices.add(0)
+                1->{
+                    val searchVal = activeCards[0].getPerceivedValue()
+                    indices.add(util.searchCard(hand,0,hand.size-1,searchVal))
+                }
+                2->{
+                    var searchVal = activeCards[0].getPerceivedValue()
+                    val firstEntriesOfDoubles:MutableList<Cards> = player.getFirstOfDoubles()
+                    val firstEntryOfDoubleIndex=util.searchCard(firstEntriesOfDoubles,0,firstEntriesOfDoubles.size-1,searchVal)
+                    if(firstEntryOfDoubleIndex!=-1){
+                        searchVal =  firstEntriesOfDoubles[firstEntryOfDoubleIndex].getPerceivedValue()
+                        var indexFound = util.searchCard(hand,0,hand.size-1,searchVal)
+                        indices.add(indexFound)
+                        indices.add(indexFound+1)
+                    }
+                }
             }
         }
         return indices
@@ -128,5 +126,11 @@ public class President{
             else->newVal=card.toInt()
         }
         return newVal
+    }
+    private fun addEntriesIntoActiveCards(indices:List<Int>, hand: MutableList<Cards>){
+        activeCards.clear()
+        for(i in indices){
+            activeCards.add(hand[i])
+        }
     }
 }

@@ -59,11 +59,11 @@ public class President{
     private fun getIndex(playerNum:Int):MutableList<Int>{
         var indices:MutableList<Int> = mutableListOf()
         val player=Players[playerNum-1]
+        player.initializePlayer()
         val hand:MutableList<Cards> =  player.getHand()
         if(playerNum==1){
             indices=inputCard(hand)
         }else{
-            player.initializePlayer()
             when(activeCards.size){
                 0->indices.add(0)
                 1->{
@@ -71,15 +71,7 @@ public class President{
                     indices.add(util.searchCard(hand,0,hand.size-1,searchVal))
                 }
                 2->{
-                    var searchVal = activeCards[0].getPerceivedValue()
-                    val firstEntriesOfDoubles:MutableList<Cards> = player.getFirstOfDoubles()
-                    val firstEntryOfDoubleIndex=util.searchCard(firstEntriesOfDoubles,0,firstEntriesOfDoubles.size-1,searchVal)
-                    if(firstEntryOfDoubleIndex!=-1){
-                        searchVal =  firstEntriesOfDoubles[firstEntryOfDoubleIndex].getPerceivedValue()
-                        var indexFound = util.searchCard(hand,0,hand.size-1,searchVal)
-                        indices.add(indexFound)
-                        indices.add(indexFound+1)
-                    }
+                    handleDoubles(player,hand,indices)
                 }
             }
         }
@@ -105,7 +97,7 @@ public class President{
             }
             inputList.size>=1->{
                 when{
-                    inputList.all { checkValidEntry(it,hand) }->numList=inputList.map{it.toInt()-1}.toMutableList()
+                    inputList.all { checkValidEntry(it,hand) } && checkValidDoubles(inputList,hand)->numList=inputList.map{it.toInt()-1}.toMutableList()
                     else->numList=inputCard(hand)
                 }
             }
@@ -114,6 +106,15 @@ public class President{
         return numList
     }
     private fun checkValidEntry(input:String,hand: MutableList<Cards>):Boolean = input.toInt() in 1..hand.size && (activeCards.size == 0 || hand[input.toInt() - 1].getPerceivedValue() >= activeCards[0].getPerceivedValue())
+    private fun checkValidDoubles(indices: MutableList<String>, hand: MutableList<Cards>):Boolean{
+        val cardVal=hand[indices[0].toInt()-1].getPerceivedValue()
+        for(i in indices){
+            if(hand[i.toInt()-1].getPerceivedValue() != cardVal){
+                return false
+            }
+        }
+        return true
+    }
 
     private fun presConvert(card:String):Int{
         val newVal:Int
@@ -131,6 +132,17 @@ public class President{
         activeCards.clear()
         for(i in indices){
             activeCards.add(hand[i])
+        }
+    }
+    private fun handleDoubles(player: Player,hand: MutableList<Cards>,indices: MutableList<Int>){
+        var searchVal = activeCards[0].getPerceivedValue()
+        val firstEntriesOfDoubles:MutableList<Cards> = player.getFirstOfDoubles()
+        val firstEntryOfDoubleIndex=util.searchCard(firstEntriesOfDoubles,0,firstEntriesOfDoubles.size-1,searchVal)
+        if(firstEntryOfDoubleIndex!=-1){
+            searchVal =  firstEntriesOfDoubles[firstEntryOfDoubleIndex].getPerceivedValue()
+            var indexFound = util.searchCard(hand,0,hand.size-1,searchVal)
+            indices.add(indexFound)
+            indices.add(indexFound+1)
         }
     }
 }

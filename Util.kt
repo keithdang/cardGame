@@ -52,9 +52,12 @@ public class Util{
             if(hand.get(left).getPerceivedValue()<x)return -1
             return left
         }else if(right-left==1){
-            if(hand.get(left).getPerceivedValue()>=x)return left
-            else if(hand.get(right).getPerceivedValue()>=x)return right
-            else return -1
+            when{
+                left!=0 && hand.get(left-1).getPerceivedValue()>=x -> return left-1
+                hand.get(left).getPerceivedValue()>=x -> return left
+                hand.get(right).getPerceivedValue()>=x -> return right
+                else->return -1
+            }
         } else if(right>0 && left<right){
             val mid=(right+left)/2
             val midVal=hand.get(mid).getPerceivedValue()

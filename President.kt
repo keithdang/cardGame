@@ -77,12 +77,23 @@ public class President{
         print("Select Card (s for skip):\n")
         var numList:MutableList<Int> = mutableListOf()
         val input=readLine()!!
+        val inputList=input.split(",").toMutableList()
         when{
-            input.equals("s")->numList.add(-1)
-            input.toIntOrNull() != null-> {
-                when {
-                    input.toInt() in 1..hand.size
-                            && (activeCards.size == 0 || hand[input.toInt() - 1].getPerceivedValue() >= activeCards[0].getPerceivedValue())->numList.add(input.toInt() -1)
+            inputList.size==1->{
+                when{
+                    inputList[0].equals("s")->numList.add(-1)
+                    inputList[0].toIntOrNull() != null-> {
+                        when {
+                            checkValidEntry(input,hand)->numList.add(input.toInt()-1)
+                            else->numList=inputCard(hand)
+                        }
+                    }
+                    else->numList=inputCard(hand)
+                }
+            }
+            inputList.size>=1->{
+                when{
+                    inputList.all { checkValidEntry(it,hand) }->numList=inputList.map{it.toInt()-1}.toMutableList()
                     else->numList=inputCard(hand)
                 }
             }
@@ -90,6 +101,8 @@ public class President{
         }
         return numList
     }
+    private fun checkValidEntry(input:String,hand: MutableList<Cards>):Boolean = input.toInt() in 1..hand.size && (activeCards.size == 0 || hand[input.toInt() - 1].getPerceivedValue() >= activeCards[0].getPerceivedValue())
+
     private fun presConvert(card:String):Int{
         val newVal:Int
         when(card){

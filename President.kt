@@ -61,17 +61,19 @@ public class President{
         val player=Players[playerNum-1]
         player.initializePlayer()
         val hand:MutableList<Cards> =  player.getHand()
-        if(playerNum==1){
-            indices=inputCard(hand)
-        }else{
-            when(activeCards.size){
-                0->indices.add(0)
-                1->{
-                    val searchVal = activeCards[0].getPerceivedValue()
-                    indices.add(util.searchCard(hand,0,hand.size-1,searchVal))
-                }
-                2->{
-                    handleDoubles(player,hand,indices)
+        if(activeCards.size==0 || hand[hand.size-1].getPerceivedValue() >= activeCards[0].getPerceivedValue()){
+            if(playerNum==1){
+                indices=inputCard(hand)
+            }else{
+                when(activeCards.size){
+                    0->indices.add(0)
+                    1->{
+                        val searchVal = activeCards[0].getPerceivedValue()
+                        indices.add(util.searchCard(hand,0,hand.size-1,searchVal))
+                    }
+                    2->{
+                        handleDoubles(player,hand,indices)
+                    }
                 }
             }
         }
@@ -86,6 +88,7 @@ public class President{
             inputList.size==1->{
                 when{
                     inputList[0].equals("s")->numList.add(-1)
+                    activeCards.size>1->numList=inputCard(hand)
                     inputList[0].toIntOrNull() != null-> {
                         when {
                             checkValidEntry(input,hand)->numList.add(input.toInt()-1)
@@ -108,6 +111,9 @@ public class President{
     private fun checkValidEntry(input:String,hand: MutableList<Cards>):Boolean = input.toInt() in 1..hand.size && (activeCards.size == 0 || hand[input.toInt() - 1].getPerceivedValue() >= activeCards[0].getPerceivedValue())
     private fun checkValidDoubles(indices: MutableList<String>, hand: MutableList<Cards>):Boolean{
         val cardVal=hand[indices[0].toInt()-1].getPerceivedValue()
+        if(indices.size != 2){
+            return false
+        }
         for(i in indices){
             if(hand[i.toInt()-1].getPerceivedValue() != cardVal){
                 return false

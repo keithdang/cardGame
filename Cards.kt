@@ -15,5 +15,8 @@ public class Cards(private val num:Int, private val suit:Suits,val styleValue:St
     fun printCardTab(num:Int){
         print("${num}:${cardName} of ${suit},\t")
     }
+    fun printCardTabNolabel(){
+        print("${cardName} of ${suit},\t")
+    }
     fun getPerceivedValue():Int=perceivedValue
 }

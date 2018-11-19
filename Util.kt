@@ -12,6 +12,12 @@ public class Util{
         }
         println()
     }
+    fun printIndicesOfHand(indices:List<Int>,cards: MutableList<Cards>){
+        for(i in indices){
+            cards[i].printCardTabNolabel()
+        }
+        println()
+    }
     fun printCardsInLineLabel(cards:MutableList<Cards>){
         var i=1
         for(card in cards){
@@ -19,6 +25,13 @@ public class Util{
             i++
         }
         println()
+    }
+    fun RemoveAllIndicesFromHand(indices: List<Int>, cards: MutableList<Cards>){
+        var count=0
+        for(i in indices){
+            cards.removeAt(i-count)
+            count++
+        }
     }
     fun sortHand(cards: MutableList<Cards>){
         cards.sortBy { it.getPerceivedValue() }

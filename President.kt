@@ -30,48 +30,62 @@ public class President{
         }
     }
     private fun playerTurn(num:Int){
-        val hand=Players[num-1].getHand()
         print("Player: $num\n")
+        val hand=Players[num-1].getHand()
         util.printCardsInLine(hand)
-        val foundIndex:Int
-
-        if(turnCount==4) activeCards.clear()
-
-        foundIndex=getIndex(num,hand)
-
         var goAgain=false
-        if(foundIndex!=-1){
-            hand[foundIndex].printCardLn()
-            if(activeCards.size>0 && activeCards[0].getPerceivedValue()==hand[foundIndex].getPerceivedValue()){
+        if(turnCount==4) activeCards.clear()
+        val indices:List<Int> = getIndex(num,hand)
+
+        if(indices[0]!=-1){
+            util.printIndicesOfHand(indices,hand)
+            if(activeCards.size>0 && activeCards[0].getPerceivedValue()==hand[indices[0]].getPerceivedValue()){
                 println("BURN")
                 goAgain=true
                 activeCards.clear()
             }else{
                 activeCards.clear()
-                activeCards.add(hand[foundIndex])
+                activeCards.add(hand[indices[0]])
             }
-            hand.removeAt(foundIndex)
+            util.RemoveAllIndicesFromHand(indices,hand)
             if(goAgain) playerTurn(num)
-
             turnCount=1
         }else{
             println("Player ${num} couldn't go")
             turnCount++
         }
+//        if(foundIndex!=-1){
+//            hand[foundIndex].printCardLn()
+//            if(activeCards.size>0 && activeCards[0].getPerceivedValue()==hand[foundIndex].getPerceivedValue()){
+//                println("BURN")
+//                goAgain=true
+//                activeCards.clear()
+//            }else{
+//                activeCards.clear()
+//                activeCards.add(hand[foundIndex])
+//            }
+//            hand.removeAt(foundIndex)
+//            if(goAgain) playerTurn(num)
+//
+//            turnCount=1
+//        }else{
+//            println("Player ${num} couldn't go")
+//            turnCount++
+//        }
     }
-    private fun getIndex(playerNum:Int,hand:MutableList<Cards>):Int{
-        val foundIndex:Int
+    private fun getIndex(playerNum:Int,hand:MutableList<Cards>):MutableList<Int>{
+        var indices:MutableList<Int> = mutableListOf()
         if(playerNum==1){
-            foundIndex=inputCard(hand)[0]
+            indices=inputCard(hand)
         }else{
             if(activeCards.size==0){
-                foundIndex=0
+                indices.add(0)
             }else{
                 val searchVal = activeCards[0].getPerceivedValue()
-                foundIndex=util.searchCard(hand,0,hand.size-1,searchVal)
+                indices.add(util.searchCard(hand,0,hand.size-1,searchVal))
             }
         }
-        return foundIndex
+        return indices
     }
     private fun inputCard(hand:MutableList<Cards>):MutableList<Int>{
         print("Select Card (s for skip):\n")

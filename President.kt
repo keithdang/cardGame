@@ -114,6 +114,9 @@ public class President{
                     else->numList=inputCard(hand)
                 }
             }
+            5->{
+                handleFiveCardCombinations(hand,inputList)
+            }
             else->numList=inputCard(hand)
         }
         return numList
@@ -145,6 +148,21 @@ public class President{
         for(i in indices){
             activeCards.add(hand[i])
         }
+    }
+    private fun handleFiveCardCombinations(hand: MutableList<Cards>,indices: MutableList<String>){
+        indices.sortBy{it.toInt()}
+        checkIfStraight(hand,indices)
+    }
+    private fun checkIfStraight(hand: MutableList<Cards>,indices: MutableList<String>):Boolean{
+        for(i in 0..(indices.size-2)){
+            var firstIndex=indices[i].toInt()-1
+            var secondIndex=indices[i+1].toInt()-1
+            if(hand[firstIndex].getPerceivedValue()!=(hand[secondIndex].getPerceivedValue()-1)){
+                return false
+            }
+        }
+        println("Hello World")
+        return true
     }
     private fun handleIdenticalCards(player: Player,hand: MutableList<Cards>,indices: MutableList<Int>,numIdentical:Int){
         var searchVal = activeCards[0].getPerceivedValue()

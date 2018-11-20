@@ -8,7 +8,7 @@ public class Player(private val hand:MutableList<Cards>){
     private var firstCardOfQuadsInHand:MutableList<Cards> = mutableListOf()
 
     fun initializePlayer(){
-
+        clearVar()
         initializeIdenticals()
     }
     fun clearVar(){

@@ -1,6 +1,5 @@
 public class President{
     private val Players:MutableList<Player> = mutableListOf()
-    private val util=Util()
     private val activeCards:MutableList<Cards> = mutableListOf()
     private val presValue:String.()->Int={
         presConvert(this)
@@ -11,8 +10,8 @@ public class President{
         deck.shuffleDeck()
         for(i in 1..4){
             Players.add(Player(deck.getDeck().subList((i-1)*13,i*13).toMutableList()))
-            util.sortHand(Players[i-1].getHand())
-            util.printCardsInLine(Players[i-1].getHand())
+            Util.sortHand(Players[i-1].getHand())
+            Util.printCardsInLine(Players[i-1].getHand())
             Players[i-1].initializePlayer()
             Players[i-1].printDoublesInHand()
         }
@@ -34,13 +33,13 @@ public class President{
     private fun playerTurn(num:Int){
         print("Player: $num\n")
         val hand=Players[num-1].getHand()
-        util.printCardsInLine(hand)
+        Util.printCardsInLine(hand)
         var goAgain=false
         if(turnCount==4) activeCards.clear()
         val indices:List<Int> = getIndex(num)
 
         if(indices.isNotEmpty() && indices[0]!=-1){
-            util.printIndicesOfHand(indices,hand)
+            Util.printIndicesOfHand(indices,hand)
             if(activeCards.size>0 && activeCards[0].getPerceivedValue()==hand[indices[0]].getPerceivedValue()){
                 println("BURN")
                 goAgain=true
@@ -48,7 +47,7 @@ public class President{
             }else{
                 addEntriesIntoActiveCards(indices,hand)
             }
-            util.removeAllIndicesFromHand(indices,hand)
+            Util.removeAllIndicesFromHand(indices,hand)
             if(goAgain) playerTurn(num)
             turnCount=1
         }else{
@@ -69,11 +68,10 @@ public class President{
                     0->indices.add(0)
                     1->{
                         val searchVal = activeCards[0].getPerceivedValue()
-                        indices.add(util.searchCard(hand,0,hand.size-1,searchVal))
+                        indices.add(Util.searchCard(hand,0,hand.size-1,searchVal))
                     }
-                    2->{
-                        handleDoubles(player,hand,indices)
-                    }
+                    2->handleDoubles(player,hand,indices)
+                    3->handleTriples(player,hand,indices)
                 }
             }
         }
@@ -98,9 +96,15 @@ public class President{
                     else->numList=inputCard(hand)
                 }
             }
-            inputList.size>=1->{
+            inputList.size==2->{
                 when{
                     inputList.all { checkValidEntry(it,hand) } && checkValidDoubles(inputList,hand)->numList=inputList.map{it.toInt()-1}.toMutableList()
+                    else->numList=inputCard(hand)
+                }
+            }
+            inputList.size==3->{
+                when{
+                    inputList.all { checkValidEntry(it,hand) } && checkValidTriples(inputList,hand)->numList=inputList.map{it.toInt()-1}.toMutableList()
                     else->numList=inputCard(hand)
                 }
             }
@@ -112,6 +116,18 @@ public class President{
     private fun checkValidDoubles(indices: MutableList<String>, hand: MutableList<Cards>):Boolean{
         val cardVal=hand[indices[0].toInt()-1].getPerceivedValue()
         if(indices.size != 2){
+            return false
+        }
+        for(i in indices){
+            if(hand[i.toInt()-1].getPerceivedValue() != cardVal){
+                return false
+            }
+        }
+        return true
+    }
+    private fun checkValidTriples(indices: MutableList<String>, hand: MutableList<Cards>):Boolean{
+        val cardVal=hand[indices[0].toInt()-1].getPerceivedValue()
+        if(indices.size != 3){
             return false
         }
         for(i in indices){
@@ -143,10 +159,21 @@ public class President{
     private fun handleDoubles(player: Player,hand: MutableList<Cards>,indices: MutableList<Int>){
         var searchVal = activeCards[0].getPerceivedValue()
         val firstEntriesOfDoubles:MutableList<Cards> = player.getFirstOfDoubles()
-        val firstEntryOfDoubleIndex=util.searchCard(firstEntriesOfDoubles,0,firstEntriesOfDoubles.size-1,searchVal)
+        val firstEntryOfDoubleIndex=Util.searchCard(firstEntriesOfDoubles,0,firstEntriesOfDoubles.size-1,searchVal)
         if(firstEntryOfDoubleIndex!=-1){
             searchVal =  firstEntriesOfDoubles[firstEntryOfDoubleIndex].getPerceivedValue()
-            var indexFound = util.searchCard(hand,0,hand.size-1,searchVal)
+            var indexFound = Util.searchCard(hand,0,hand.size-1,searchVal)
+            indices.add(indexFound)
+            indices.add(indexFound+1)
+        }
+    }
+    private fun handleTriples(player: Player,hand: MutableList<Cards>,indices: MutableList<Int>){
+        var searchVal = activeCards[0].getPerceivedValue()
+        val firstEntriesOfTriples:MutableList<Cards> = player.getFirstOfTriples()
+        val firstEntryOfTripleIndex=Util.searchCard(firstEntriesOfTriples,0,firstEntriesOfTriples.size-1,searchVal)
+        if(firstEntryOfTripleIndex!=-1){
+            searchVal =  firstEntriesOfTriples[firstEntryOfTripleIndex].getPerceivedValue()
+            var indexFound = Util.searchCard(hand,0,hand.size-1,searchVal)
             indices.add(indexFound)
             indices.add(indexFound+1)
         }

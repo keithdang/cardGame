@@ -2,8 +2,7 @@ enum class Suits{
     SPADES,CLUBS,DIAMONDS,HEARTS
 }
 public class Cards(private val num:Int, private val suit:Suits,val styleValue:String.()->Int){
-    private val util=Util()
-    private val cardName=util.genCardName(num)
+    private val cardName=Util.genCardName(num)
     private val perceivedValue=cardName.styleValue()
 
     fun printCardLn(){

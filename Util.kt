@@ -1,4 +1,4 @@
-public class Util{
+object Util{
     fun printCards(cards:MutableList<Cards>){
         for(card in cards){
             card.printCardLn()

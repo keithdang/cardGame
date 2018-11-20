@@ -1,6 +1,5 @@
 public class Deck(styleValue:String.()->Int){
     private val cards:MutableList<Cards> = mutableListOf()
-    val util=Util()
     init{
         for(suit in Suits.values()){
             for(i in 1..13){
@@ -16,7 +15,7 @@ public class Deck(styleValue:String.()->Int){
     }
     fun getDeck():MutableList<Cards> = cards
     fun printDeck(){
-        util.printCardsInLine(cards)
+        Util.printCardsInLine(cards)
         println()
     }
 }

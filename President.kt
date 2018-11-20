@@ -71,6 +71,7 @@ public class President{
                     }
                     2->handleIdenticalCards(player,hand,indices,2)
                     3->handleIdenticalCards(player,hand,indices,3)
+                    4->handleIdenticalCards(player,hand,indices,4)
                 }
             }
         }
@@ -102,6 +103,12 @@ public class President{
                 }
             }
             3->{
+                when{
+                    inputList.all { checkValidEntry(it,hand) } && checkIfIndicesHaveSameCardPerceivedValue(inputList,hand)->numList=inputList.map{it.toInt()-1}.toMutableList()
+                    else->numList=inputCard(hand)
+                }
+            }
+            4->{
                 when{
                     inputList.all { checkValidEntry(it,hand) } && checkIfIndicesHaveSameCardPerceivedValue(inputList,hand)->numList=inputList.map{it.toInt()-1}.toMutableList()
                     else->numList=inputCard(hand)
@@ -145,6 +152,7 @@ public class President{
         when(numIdentical){
             2->firstEntriesOfIdenticalGroups=player.getFirstOfDoubles()
             3->firstEntriesOfIdenticalGroups=player.getFirstOfTriples()
+            4->firstEntriesOfIdenticalGroups=player.getFirstOfQuads()
         }
         val firstEntry=Util.searchCard(firstEntriesOfIdenticalGroups,0,firstEntriesOfIdenticalGroups.size-1,searchVal)
         if(firstEntry!=-1){

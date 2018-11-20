@@ -49,20 +49,19 @@ object Util{
     }
     fun searchCard(hand:MutableList<Cards>,left:Int,right:Int,x:Int):Int{
         if(left==right){
-            if(hand.get(left).getPerceivedValue()<x)return -1
-            return left
+            if(hand[left].getPerceivedValue()<x)return -1
+            return originalOrBetterValue(hand,left,x)
         }else if(right-left==1){
             when{
-                left!=0 && hand.get(left-1).getPerceivedValue()>=x -> return left-1
-                hand.get(left).getPerceivedValue()>=x -> return left
-                hand.get(right).getPerceivedValue()>=x -> return right
+                hand[left].getPerceivedValue()>=x -> return originalOrBetterValue(hand,left,x)
+                hand[right].getPerceivedValue()>=x -> return right
                 else->return -1
             }
         } else if(right>0 && left<right){
             val mid=(right+left)/2
-            val midVal=hand.get(mid).getPerceivedValue()
+            val midVal=hand[mid].getPerceivedValue()
             if(midVal==x){
-                return mid
+                return originalOrBetterValue(hand,mid,x)
             }else if(x<midVal){
                 return searchCard(hand,left,mid,x)
             }else{
@@ -70,5 +69,11 @@ object Util{
             }
         }
         return -1
+    }
+    fun originalOrBetterValue(hand: MutableList<Cards>,originalIndex:Int, num:Int):Int{
+        if(originalIndex!=0 && hand[originalIndex-1].getPerceivedValue()>=num){
+            return originalIndex-1
+        }
+        return  originalIndex
     }
 }

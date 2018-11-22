@@ -28,7 +28,9 @@ object Util{
     }
     fun removeAllIndicesFromHand(indices: List<Int>, cards: MutableList<Cards>){
         var count=0
-        for(i in indices){
+        var tempList=indices.toMutableList()
+        tempList.sort()
+        for(i in tempList){
             cards.removeAt(i-count)
             count++
         }
@@ -72,7 +74,7 @@ object Util{
     }
     fun originalOrBetterValue(hand: MutableList<Cards>,originalIndex:Int, num:Int):Int{
         if(originalIndex!=0 && hand[originalIndex-1].getPerceivedValue()>=num){
-            return originalIndex-1
+            return originalOrBetterValue(hand,originalIndex-1,num)
         }
         return  originalIndex
     }
@@ -83,6 +85,7 @@ object Util{
         }
         return list.toList()
     }
+
     fun sortedSelectedList(hand: MutableList<Cards>,indices: List<Int>):MutableList<Cards>{
         val tempList:MutableList<Cards> = mutableListOf()
         for(i in indices){

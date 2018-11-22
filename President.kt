@@ -1,6 +1,10 @@
 public class President{
+    enum class fiveCardCombos{
+        NONE,STRAIGHT,FULLHOUSE
+    }
     private val Players:MutableList<Player> = mutableListOf()
     private val activeCards:MutableList<Cards> = mutableListOf()
+    private var activeFiveCardState:fiveCardCombos=fiveCardCombos.NONE
     private val presValue:String.()->Int={
         presConvert(this)
     }
@@ -73,6 +77,7 @@ public class President{
                     2->handleIdenticalCards(player,hand,indices,2)
                     3->handleIdenticalCards(player,hand,indices,3)
                     4->handleIdenticalCards(player,hand,indices,4)
+                    5->computerDetectFiveCardCombos(player,hand,indices)
                 }
             }
         }
@@ -97,28 +102,23 @@ public class President{
                     else->numList=inputCard(hand)
                 }
             }
-            2->{
-                when{
-                    inputList.all { checkValidEntry(it,hand) } && checkIfIndicesHaveSameCardPerceivedValue(inputList,hand)->numList=inputList.map{it.toInt()-1}.toMutableList()
-                    else->numList=inputCard(hand)
-                }
-            }
-            3->{
-                when{
-                    inputList.all { checkValidEntry(it,hand) } && checkIfIndicesHaveSameCardPerceivedValue(inputList,hand)->numList=inputList.map{it.toInt()-1}.toMutableList()
-                    else->numList=inputCard(hand)
-                }
-            }
-            4->{
+            2,3,4->{
                 when{
                     inputList.all { checkValidEntry(it,hand) } && checkIfIndicesHaveSameCardPerceivedValue(inputList,hand)->numList=inputList.map{it.toInt()-1}.toMutableList()
                     else->numList=inputCard(hand)
                 }
             }
             5->{
-                handleFiveCardCombinations(hand,inputList)
+                when{
+                    handleFiveCardCombinations(hand,inputList)->numList=inputList.map{it.toInt()-1}.toMutableList()
+                    else->numList=inputCard(hand)
+                }
             }
             else->numList=inputCard(hand)
+        }
+        //if user is able to select a new card combination thats not length 5 and it wasn't a skip
+        if(numList.size<5  && numList[0]!=-1){
+            activeFiveCardState=fiveCardCombos.NONE
         }
         return numList
     }
@@ -150,35 +150,38 @@ public class President{
             activeCards.add(hand[i])
         }
     }
-    private fun handleFiveCardCombinations(hand: MutableList<Cards>,indices: MutableList<String>){
-        indices.sortBy{it.toInt()}
-        checkIfStraight(hand,indices)
-        if(isFullHouse(hand,indices))  println("Full House Detected")
-    }
-    private fun checkIfStraight(hand: MutableList<Cards>,indices: MutableList<String>):Boolean{
-        for(i in 0..(indices.size-2)){
-            var firstIndex=indices[i].toInt()-1
-            var secondIndex=indices[i+1].toInt()-1
-            if(hand[firstIndex].getPerceivedValue()!=(hand[secondIndex].getPerceivedValue()-1)){
-                return false
+    private fun computerDetectFiveCardCombos(player: Player,hand: MutableList<Cards>,indices: MutableList<Int>){
+        when(activeFiveCardState){
+            fiveCardCombos.FULLHOUSE->{
+                if(player.getFullHouse().size>0){
+                    for(fullHouse in player.getFullHouse()){
+                        var acIndices=PokerHands.tripleAndDoubleInFullHouse(activeCards)
+                        if(acIndices.first!=-1 && fullHouse[0].getPerceivedValue() > activeCards[acIndices.first].getPerceivedValue()){
+                            var tripleEntryOfHand=Util.searchCard(hand,0,hand.size-1,fullHouse[0].getPerceivedValue())
+                            if(tripleEntryOfHand!=-1){
+                                var doubleEntryOfHand=Util.searchCard(hand,0,hand.size-1,fullHouse[3].getPerceivedValue())
+                                if(doubleEntryOfHand!=-1){
+                                    indices.addAll(mutableListOf(tripleEntryOfHand,tripleEntryOfHand+1,tripleEntryOfHand+2,doubleEntryOfHand,doubleEntryOfHand+1))
+                                    return
+                                }
+                            }
+                        }
+                    }
+                }
             }
+            fiveCardCombos.STRAIGHT->println("STRAIGHT EFFECTS")
+            fiveCardCombos.NONE->println("ERROR: NONE FOUND")
         }
-        println("Hello World")
-        return true
     }
-    private fun isFullHouse(hand: MutableList<Cards>,indices: MutableList<String>):Boolean{
-        var tempHand = Util.sortedSelectedList(hand,Util.formatIndices(indices))
-        if(tempHand[0].getPerceivedValue()==tempHand[1].getPerceivedValue()){
-            if(tempHand[0].getPerceivedValue()==tempHand[2].getPerceivedValue()){
-                if(tempHand[3].getPerceivedValue()==tempHand[4].getPerceivedValue()){
-                    return true
-                }
-            }
-            if(tempHand[2].getPerceivedValue()==tempHand[3].getPerceivedValue()){
-                if(tempHand[2].getPerceivedValue()==tempHand[4].getPerceivedValue()){
-                    return true
-                }
-            }
+    private fun handleFiveCardCombinations(hand: MutableList<Cards>,indices: MutableList<String>):Boolean{
+        indices.sortBy{it.toInt()}
+        if(PokerHands.checkIfStraight(hand,indices)){
+            activeFiveCardState=fiveCardCombos.STRAIGHT
+            return true
+        }
+        if(PokerHands.isFullHouse(hand,indices)){
+            activeFiveCardState=fiveCardCombos.FULLHOUSE
+            return true
         }
         return false
     }

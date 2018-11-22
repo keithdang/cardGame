@@ -1,7 +1,7 @@
 enum class Suits{
     SPADES,CLUBS,DIAMONDS,HEARTS
 }
-public class Cards(private val num:Int, private val suit:Suits,val styleValue:String.()->Int){
+public class Cards(private val num:Int, private val suit:Suits,val styleValue:String.()->Int,private val placement:Int){
     private val cardName=Util.genCardName(num)
     private val perceivedValue=cardName.styleValue()
 
@@ -18,4 +18,5 @@ public class Cards(private val num:Int, private val suit:Suits,val styleValue:St
         print("${cardName} of ${suit},\t")
     }
     fun getPerceivedValue():Int=perceivedValue
+    fun getOriginalPlacement():Int=placement
 }

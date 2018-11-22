@@ -76,4 +76,25 @@ object Util{
         }
         return  originalIndex
     }
+    fun formatIndices(indices: List<String>):List<Int>{
+        var list:MutableList<Int> = mutableListOf()
+        for(i in indices){
+            list.add(i.toInt()-1)
+        }
+        return list.toList()
+    }
+    fun sortedSelectedList(hand: MutableList<Cards>,indices: List<Int>):MutableList<Cards>{
+        val tempList:MutableList<Cards> = mutableListOf()
+        for(i in indices){
+            tempList.add(hand[i])
+        }
+        var copyList = tempList.toMutableList()
+        copyList.sortBy { it.getPerceivedValue() }
+        return copyList
+    }
+    fun <T> swap(num1:Int,num2:Int,list: MutableList<T>){
+        val temp=list[num1]
+        list[num1]=list[num2]
+        list[num2]=temp
+    }
 }

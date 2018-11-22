@@ -7,7 +7,8 @@ public class President{
     private var turnCount=1
     init{
         val deck=Deck(presValue)
-        deck.shuffleDeck()
+//        deck.shuffleDeck()
+        deck.sortDeckFullHouseForEachPlayer()
         for(i in 1..4){
             Players.add(Player(deck.getDeck().subList((i-1)*13,i*13).toMutableList()))
             Util.sortHand(Players[i-1].getHand())
@@ -152,6 +153,7 @@ public class President{
     private fun handleFiveCardCombinations(hand: MutableList<Cards>,indices: MutableList<String>){
         indices.sortBy{it.toInt()}
         checkIfStraight(hand,indices)
+        if(isFullHouse(hand,indices))  println("Full House Detected")
     }
     private fun checkIfStraight(hand: MutableList<Cards>,indices: MutableList<String>):Boolean{
         for(i in 0..(indices.size-2)){
@@ -163,6 +165,22 @@ public class President{
         }
         println("Hello World")
         return true
+    }
+    private fun isFullHouse(hand: MutableList<Cards>,indices: MutableList<String>):Boolean{
+        var tempHand = Util.sortedSelectedList(hand,Util.formatIndices(indices))
+        if(tempHand[0].getPerceivedValue()==tempHand[1].getPerceivedValue()){
+            if(tempHand[0].getPerceivedValue()==tempHand[2].getPerceivedValue()){
+                if(tempHand[3].getPerceivedValue()==tempHand[4].getPerceivedValue()){
+                    return true
+                }
+            }
+            if(tempHand[2].getPerceivedValue()==tempHand[3].getPerceivedValue()){
+                if(tempHand[2].getPerceivedValue()==tempHand[4].getPerceivedValue()){
+                    return true
+                }
+            }
+        }
+        return false
     }
     private fun handleIdenticalCards(player: Player,hand: MutableList<Cards>,indices: MutableList<Int>,numIdentical:Int){
         var searchVal = activeCards[0].getPerceivedValue()
@@ -181,4 +199,5 @@ public class President{
             }
         }
     }
+
 }

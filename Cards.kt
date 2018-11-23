@@ -19,4 +19,5 @@ public class Cards(private val num:Int, private val suit:Suits,val styleValue:St
     }
     fun getPerceivedValue():Int=perceivedValue
     fun getOriginalPlacement():Int=placement
+    fun getSuit():Suits=suit
 }

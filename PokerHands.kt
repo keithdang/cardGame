@@ -26,6 +26,15 @@ object PokerHands{
         }
         return false
     }
+    fun isFlush(hand: MutableList<Cards>,indices: MutableList<Int>):Boolean{
+        var currentSuit:Suits=hand[indices[0]].getSuit()
+        for(index in indices){
+            if(hand[index].getSuit()!=currentSuit){
+                return false
+            }
+        }
+        return true
+    }
     fun tripleAndDoubleInFullHouse(fullHouse:MutableList<Cards>):Pair<Int,Int>{
         fullHouse.sortBy { it.getPerceivedValue() }
         //first 3 are triples

@@ -29,6 +29,11 @@ public class Deck(styleValue:String.()->Int){
         Util.swap(40,10,cards)
         Util.swap(41,23,cards)
     }
+    fun sortDifferentStraightsForEachPlayer(){
+        sortDeckOriginal()
+        Util.swap(7,15,cards)
+        Util.swap(29,43,cards)
+    }
     fun printDeck(){
         Util.printCardsInLine(cards)
         println()

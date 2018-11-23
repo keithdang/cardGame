@@ -6,10 +6,9 @@ public class Player(private val hand:MutableList<Cards>){
     private var firstCardOfTriplesInHand:MutableList<Cards> = mutableListOf()
     private var quadsInHand:MutableList<MutableList<Cards>> = mutableListOf()
     private var firstCardOfQuadsInHand:MutableList<Cards> = mutableListOf()
-    private var straightsInHand:MutableList<Cards> = mutableListOf()
-    private var firstStraightsInHand:MutableList<Cards> = mutableListOf()
+    private var straightsInHand:MutableList<MutableList<Cards>> = mutableListOf()
     private var fullHouseInHand:MutableList<MutableList<Cards>> = mutableListOf()
-    private var firstFullHouseInHand:MutableList<Cards> = mutableListOf()
+
     fun initializePlayer(){
         clearVar()
         initializeIdenticals()
@@ -23,13 +22,48 @@ public class Player(private val hand:MutableList<Cards>){
         quadsInHand.clear()
         firstCardOfTriplesInHand.clear()
         fullHouseInHand.clear()
+        straightsInHand.clear()
     }
     private fun fiveCardCombos(){
         initialStraights()
         initialFullHouse()
     }
     private fun initialStraights(){
-
+        var straightHand:MutableList<Cards> = mutableListOf()
+        var i:Int=0
+        straightHand.add(hand[i])
+        while(i<hand.size-1){
+            i++
+            if(straightHand.last().getPerceivedValue()==hand[i].getPerceivedValue()){
+                continue
+            }else if((straightHand.last().getPerceivedValue()+1)==hand[i].getPerceivedValue()){
+                straightHand.add(hand[i])
+            }else{
+                if(straightHand.size>=5){
+                    straightsInHand.add(straightHand.toMutableList())
+                }
+                straightHand.clear()
+                straightHand.add(hand[i])
+            }
+        }
+        if(straightHand.size>=5){
+            straightsInHand.add(straightHand.toMutableList())
+        }
+    }
+    private fun getConsecutiveNumber(index:Int,hand: MutableList<Cards>):Int{
+        val num=hand[index].getPerceivedValue()
+        var count=index+1
+        var proceedingIndex:Int=-1
+        while(count<hand.size){
+            if((hand[num].getPerceivedValue()+1)==hand[count].getPerceivedValue()){
+                proceedingIndex=count
+            }else if((hand[num].getPerceivedValue())==hand[count].getPerceivedValue()){
+                count++
+            }else{
+                break
+            }
+        }
+        return proceedingIndex
     }
     private fun initialFullHouse(){
         if(doublesInHand.size>0 && triplesInHand.size>0){
@@ -38,7 +72,6 @@ public class Player(private val hand:MutableList<Cards>){
                     if(i[0].getPerceivedValue()!=j[0].getPerceivedValue()){
                         var tempHand:MutableList<Cards> = i.toMutableList()
                         tempHand.addAll(j)
-//                        Util.printCardsInLine(tempHand)
                         fullHouseInHand.add(tempHand)
                     }
                 }
@@ -71,6 +104,7 @@ public class Player(private val hand:MutableList<Cards>){
     fun getFirstOfTriples():MutableList<Cards> = firstCardOfTriplesInHand
     fun getFirstOfQuads():MutableList<Cards> = firstCardOfTriplesInHand
     fun getFullHouse():MutableList<MutableList<Cards>> = fullHouseInHand
+    fun getStraights():MutableList<MutableList<Cards>> = straightsInHand
     fun printDoublesInHand(){
         for(i in doublesInHand){
             Util.printCardsInLine(i)

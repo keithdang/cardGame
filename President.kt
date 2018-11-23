@@ -12,7 +12,8 @@ public class President{
     init{
         val deck=Deck(presValue)
 //        deck.shuffleDeck()
-        deck.sortDeckFullHouseForEachPlayer()
+//        deck.sortDeckFullHouseForEachPlayer()
+        deck.sortDifferentStraightsForEachPlayer()
         for(i in 1..4){
             Players.add(Player(deck.getDeck().subList((i-1)*13,i*13).toMutableList()))
             Util.sortHand(Players[i-1].getHand())
@@ -169,7 +170,41 @@ public class President{
                     }
                 }
             }
-            fiveCardCombos.STRAIGHT->println("STRAIGHT EFFECTS")
+            fiveCardCombos.STRAIGHT->{
+                if(player.getStraights().size>0){
+                    for(straight in player.getStraights()){
+                        if(straight.last().getPerceivedValue()>=activeCards.last().getPerceivedValue()){
+                            var index=0
+                            while((straight.size-(index+1))>=5){
+                                if(straight[index].getPerceivedValue()<activeCards[0].getPerceivedValue()){
+                                    index++
+                                }else{
+                                    break
+                                }
+                            }
+                            var entry:Int=Util.searchCard(hand,0,hand.size-1,straight[index].getPerceivedValue())
+                            var straightHand:MutableList<Int> = mutableListOf()
+                            var i:Int=entry
+                            straightHand.add(i)
+                            while(i<hand.size-2 && straightHand.size<5){
+                                i++
+                                if(hand[straightHand.last()].getPerceivedValue()==hand[i].getPerceivedValue()){
+                                    continue
+                                }else if((hand[straightHand.last()].getPerceivedValue()+1)==hand[i].getPerceivedValue()){
+                                    straightHand.add(i)
+                                }else{
+                                    break
+                                }
+
+                            }
+                            if(straightHand.size==5){
+                                indices.addAll(straightHand)
+                                return
+                            }
+                        }
+                    }
+                }
+            }
             fiveCardCombos.NONE->println("ERROR: NONE FOUND")
         }
     }

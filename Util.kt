@@ -86,6 +86,10 @@ object Util{
         return list.toList()
     }
 
+    fun firstIndexGreaterPerceived(num1: Int,num2: Int, hand: MutableList<Cards>):Boolean{
+        return hand[num1].getPerceivedValue()>hand[num2].getPerceivedValue()
+    }
+
     fun sortedSelectedList(hand: MutableList<Cards>,indices: List<Int>):MutableList<Cards>{
         val tempList:MutableList<Cards> = mutableListOf()
         for(i in indices){

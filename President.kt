@@ -12,8 +12,8 @@ public class President{
     init{
         val deck=Deck(presValue)
 //        deck.shuffleDeck()
-//        deck.sortDeckFullHouseForEachPlayer()
-        deck.sortDifferentStraightsForEachPlayer()
+        deck.sortDeckFullHouseForEachPlayer()
+//        deck.sortDifferentStraightsForEachPlayer()
         for(i in 1..4){
             Players.add(Player(deck.getDeck().subList((i-1)*13,i*13).toMutableList()))
             Util.sortHand(Players[i-1].getHand())
@@ -89,6 +89,8 @@ public class President{
         var numList:MutableList<Int> = mutableListOf()
         val input=readLine()!!
         val inputList=input.split(",").toMutableList()
+        var numIndices=inputList.map { it.toInt()-1 }.toMutableList()
+        numIndices.sortBy { it }
         when(inputList.size){
             1->{
                 when{
@@ -111,7 +113,7 @@ public class President{
             }
             5->{
                 when{
-                    handleFiveCardCombinations(hand,inputList)->numList=inputList.map{it.toInt()-1}.toMutableList()
+                    handleFiveCardCombinations(hand,numIndices)->numList=inputList.map{it.toInt()-1}.toMutableList()
                     else->numList=inputCard(hand)
                 }
             }
@@ -214,9 +216,9 @@ public class President{
     private fun handleFlush(player: Player,hand: MutableList<Cards>,indices: MutableList<Int>){
 
     }
-    private fun handleFiveCardCombinations(hand: MutableList<Cards>,indices: MutableList<String>):Boolean{
-        indices.sortBy{it.toInt()}
-        var numIndices=indices.map { it.toInt()-1 }.toMutableList()
+    private fun handleFiveCardCombinations(hand: MutableList<Cards>,indices: MutableList<Int>):Boolean{
+//        indices.sortBy{it.toInt()}
+//        var numIndices=indices.map { it.toInt()-1 }.toMutableList()
         if(PokerHands.checkIfStraight(hand,indices)){
             activeFiveCardState=fiveCardCombos.STRAIGHT
             return true
@@ -225,7 +227,7 @@ public class President{
             activeFiveCardState=fiveCardCombos.FULLHOUSE
             return true
         }
-        if(PokerHands.isFlush(hand,numIndices)){
+        if(PokerHands.isFlush(hand,indices)){
             activeFiveCardState=fiveCardCombos.FLUSH
             return true
         }

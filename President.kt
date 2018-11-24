@@ -1,6 +1,6 @@
 public class President{
     enum class fiveCardCombos{
-        NONE,STRAIGHT,FULLHOUSE,FLUSH,STRAIGHTFLUSH
+        NONE,STRAIGHT,FULL_HOUSE,FLUSH,STRAIGHT_FLUSH,ROYAL_FLUSH
     }
     private val Players:MutableList<Player> = mutableListOf()
     private val activeCards:MutableList<Cards> = mutableListOf()
@@ -11,11 +11,12 @@ public class President{
     private var turnCount=1
     init{
         val deck=Deck(presValue)
-//        deck.shuffleDeck()
+        deck.shuffleDeck()
 //        deck.sortDeckFullHouseForEachPlayer()
 //        deck.sortDifferentStraightsForEachPlayer()
 //        deck.sortFlushes()
-        deck.sortStraightFlushes()
+//        deck.sortStraightFlushes()
+//        deck.sortDeckOriginal()
         for(i in 1..4){
             Players.add(Player(deck.getDeck().subList((i-1)*13,i*13).toMutableList()))
             Util.sortHand(Players[i-1].getHand())
@@ -158,10 +159,11 @@ public class President{
     }
     private fun computerDetectFiveCardCombos(player: Player,hand: MutableList<Cards>,indices: MutableList<Int>){
         when(activeFiveCardState){
-            fiveCardCombos.FULLHOUSE->handleFullHouse(player,hand,indices)
+            fiveCardCombos.FULL_HOUSE->handleFullHouse(player,hand,indices)
             fiveCardCombos.STRAIGHT->handleStraights(player,hand,indices)
             fiveCardCombos.FLUSH->handleFlush(player,hand,indices)
-            fiveCardCombos.STRAIGHTFLUSH->handleStraightFlush(player,hand,indices)
+            fiveCardCombos.STRAIGHT_FLUSH->handleStraightFlush(player,hand,indices)
+            fiveCardCombos.ROYAL_FLUSH->handleRoyalFlush(player,hand,indices)
             fiveCardCombos.NONE->println("ERROR: NONE FOUND")
         }
     }
@@ -285,10 +287,23 @@ public class President{
             indices.addAll(allStraightFlushes[highestFlush])
         }
     }
-
+    private fun handleRoyalFlush(player: Player,hand: MutableList<Cards>,indices: MutableList<Int>){
+        for(royals in player.getRoyalFlush()){
+            var tempList:MutableList<Int> = mutableListOf()
+            for(i in 0..(royals.size-1)){
+                tempList.add(Util.searchExactCard(hand,0,hand.size-1,royals[i]))
+            }
+            indices.addAll(tempList)
+            return
+        }
+    }
     private fun handleFiveCardCombinations(hand: MutableList<Cards>,indices: MutableList<Int>):Boolean{
+        if(PokerHands.checkIfRoyal(hand,indices)){
+            activeFiveCardState=fiveCardCombos.ROYAL_FLUSH
+            return true
+        }
         if(PokerHands.checkIfStraightFlush(hand,indices)){
-            activeFiveCardState=fiveCardCombos.STRAIGHTFLUSH
+            activeFiveCardState=fiveCardCombos.STRAIGHT_FLUSH
             return true
         }
         if(PokerHands.checkIfStraight(hand,indices)){
@@ -296,7 +311,7 @@ public class President{
             return true
         }
         if(PokerHands.isFullHouse(hand,indices)){
-            activeFiveCardState=fiveCardCombos.FULLHOUSE
+            activeFiveCardState=fiveCardCombos.FULL_HOUSE
             return true
         }
         if(PokerHands.isFlush(hand,indices)){

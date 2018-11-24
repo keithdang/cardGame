@@ -10,6 +10,7 @@ public class Player(private val hand:MutableList<Cards>){
     private var fullHouseInHand:MutableList<MutableList<Cards>> = mutableListOf()
     private var flushInHand:MutableMap<Suits,MutableList<Cards>> = mutableMapOf()
     private var straightFlushInHand:MutableList<MutableList<Cards>> = mutableListOf()
+    private var royalFlush:MutableList<MutableList<Cards>> = mutableListOf()
 
     fun initializePlayer(){
         clearVar()
@@ -27,14 +28,16 @@ public class Player(private val hand:MutableList<Cards>){
         straightsInHand.clear()
         flushInHand.clear()
         straightFlushInHand.clear()
+        royalFlush.clear()
     }
     private fun fiveCardCombos(){
         initialStraights(hand,straightsInHand)
         initialFullHouse()
         initializeFlush()
         initializeStraightFlush()
+        initializeRoyalFlush()
     }
-    private fun initialStraights(hand: MutableList<Cards>,straightsInHand:MutableList<MutableList<Cards>>){
+    private fun initialStraights(hand: MutableList<Cards>,straightsInHand:MutableList<MutableList<Cards>>,royal:Boolean=false){
         var straightHand:MutableList<Cards> = mutableListOf()
         var i:Int=0
         straightHand.add(hand[i])
@@ -45,15 +48,26 @@ public class Player(private val hand:MutableList<Cards>){
             }else if((straightHand.last().getPerceivedValue()+1)==hand[i].getPerceivedValue()){
                 straightHand.add(hand[i])
             }else{
-                if(straightHand.size>=5){
-                    straightsInHand.add(straightHand.toMutableList())
-                }
+                addStraightIntoList(straightHand,straightsInHand,royal)
                 straightHand.clear()
                 straightHand.add(hand[i])
             }
         }
+        addStraightIntoList(straightHand,straightsInHand,royal)
+    }
+    private fun addStraightIntoList(straightHand:MutableList<Cards>, straightsInHand: MutableList<MutableList<Cards>>, royal: Boolean=false){
         if(straightHand.size>=5){
-            straightsInHand.add(straightHand.toMutableList())
+            if(royal){
+                if(straightHand.last().getCardName().equals("2")){
+                    var royal=straightHand.toMutableList()
+                    while(royal.size>5){
+                        royal.removeAt(0)
+                    }
+                    straightsInHand.add(royal)
+                }
+            }else{
+                straightsInHand.add(straightHand.toMutableList())
+            }
         }
     }
     private fun getConsecutiveNumber(index:Int,hand: MutableList<Cards>):Int{
@@ -96,6 +110,13 @@ public class Player(private val hand:MutableList<Cards>){
             }
         }
     }
+    private fun initializeRoyalFlush(){
+        for(flush in flushInHand){
+            if(flush.value.size>=5){
+                initialStraights(flush.value,royalFlush,true)
+            }
+        }
+    }
     private fun initializeIdenticals(){
         for(i in 0..hand.size-2){
             //pairs
@@ -125,6 +146,7 @@ public class Player(private val hand:MutableList<Cards>){
     fun getStraights():MutableList<MutableList<Cards>> = straightsInHand
     fun getFlush():MutableMap<Suits,MutableList<Cards>> = flushInHand
     fun getStraightFlush():MutableList<MutableList<Cards>> = straightFlushInHand
+    fun getRoyalFlush():MutableList<MutableList<Cards>>  = royalFlush
     fun printDoublesInHand(){
         for(i in doublesInHand){
             Util.printCardsInLine(i)

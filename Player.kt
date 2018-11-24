@@ -8,7 +8,7 @@ public class Player(private val hand:MutableList<Cards>){
     private var firstCardOfQuadsInHand:MutableList<Cards> = mutableListOf()
     private var straightsInHand:MutableList<MutableList<Cards>> = mutableListOf()
     private var fullHouseInHand:MutableList<MutableList<Cards>> = mutableListOf()
-    private var flushInHand:MutableMap<Suits,MutableList<Cards>> = mutableMapOf()
+    private var flushInHand:MutableList<MutableList<Cards>> = mutableListOf()
     private var straightFlushInHand:MutableList<MutableList<Cards>> = mutableListOf()
     private var royalFlush:MutableList<MutableList<Cards>> = mutableListOf()
 
@@ -100,20 +100,20 @@ public class Player(private val hand:MutableList<Cards>){
     }
     private fun initializeFlush(){
         for(suit in Suits.values()){
-            flushInHand[suit]=hand.filter { it.getSuit() == suit }.toMutableList()
+            flushInHand.add(hand.filter { it.getSuit() == suit }.toMutableList())
         }
     }
     private fun initializeStraightFlush(){
         for(flush in flushInHand){
-            if(flush.value.size>=5){
-                initialStraights(flush.value,straightFlushInHand)
+            if(flush.size>=5){
+                initialStraights(flush,straightFlushInHand)
             }
         }
     }
     private fun initializeRoyalFlush(){
         for(flush in flushInHand){
-            if(flush.value.size>=5){
-                initialStraights(flush.value,royalFlush,true)
+            if(flush.size>=5){
+                initialStraights(flush,royalFlush,true)
             }
         }
     }
@@ -144,7 +144,7 @@ public class Player(private val hand:MutableList<Cards>){
     fun getFirstOfQuads():MutableList<Cards> = firstCardOfTriplesInHand
     fun getFullHouse():MutableList<MutableList<Cards>> = fullHouseInHand
     fun getStraights():MutableList<MutableList<Cards>> = straightsInHand
-    fun getFlush():MutableMap<Suits,MutableList<Cards>> = flushInHand
+    fun getFlush():MutableList<MutableList<Cards>> = flushInHand
     fun getStraightFlush():MutableList<MutableList<Cards>> = straightFlushInHand
     fun getRoyalFlush():MutableList<MutableList<Cards>>  = royalFlush
     fun printDoublesInHand(){

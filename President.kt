@@ -14,8 +14,8 @@ public class President{
         val deck=Deck(presValue)
 //        deck.shuffleDeck()
 //        deck.sortDeckFullHouseForEachPlayer()
-//        deck.sortDifferentStraightsForEachPlayer()
-        deck.sortFlushes()
+        deck.sortDifferentStraightsForEachPlayer()
+//        deck.sortFlushes()
 //        deck.sortStraightFlushes()
 //        deck.sortDeckOriginal()
         for(i in 1..4){
@@ -76,10 +76,7 @@ public class President{
             }else{
                 when(activeCards.size){
                     0->indices.add(0)
-                    1->{
-                        val searchVal = activeCards[0].getPerceivedValue()
-                        indices.add(Util.searchCard(hand,0,hand.size-1,searchVal))
-                    }
+                    1->indices.add(Util.searchCard(hand,0,hand.size-1,activeCards[0]))
                     2->handleIdenticalCards(player,hand,indices,2)
                     3->handleIdenticalCards(player,hand,indices,3)
                     4->handleIdenticalCards(player,hand,indices,4)
@@ -173,9 +170,9 @@ public class President{
             for(fullHouse in player.getFullHouse()){
                 var acIndices=PokerHands.tripleAndDoubleInFullHouse(activeCards)
                 if(acIndices.first!=-1 && fullHouse[0].getPerceivedValue() > activeCards[acIndices.first].getPerceivedValue()){
-                    var tripleEntryOfHand=Util.searchCard(hand,0,hand.size-1,fullHouse[0].getPerceivedValue())
+                    var tripleEntryOfHand=Util.searchCard(hand,0,hand.size-1,fullHouse[0])
                     if(tripleEntryOfHand!=-1){
-                        var doubleEntryOfHand=Util.searchCard(hand,0,hand.size-1,fullHouse[3].getPerceivedValue())
+                        var doubleEntryOfHand=Util.searchCard(hand,0,hand.size-1,fullHouse[3])
                         if(doubleEntryOfHand!=-1){
                             indices.addAll(mutableListOf(tripleEntryOfHand,tripleEntryOfHand+1,tripleEntryOfHand+2,doubleEntryOfHand,doubleEntryOfHand+1))
                             return
@@ -197,7 +194,7 @@ public class President{
                             break
                         }
                     }
-                    var entry:Int=Util.searchCard(hand,0,hand.size-1,straight[index].getPerceivedValue())
+                    var entry:Int=Util.searchCard(hand,0,hand.size-1,straight[index])
                     var straightHand:MutableList<Int> = mutableListOf()
                     var i:Int=entry
                     straightHand.add(i)
@@ -235,7 +232,7 @@ public class President{
                 }
                 var tempList:MutableList<Int> = mutableListOf()
                 for(i in (index-4)..index){
-                    tempList.add(Util.searchExactCard(hand,0,hand.size-1,flush[i]))
+                    tempList.add(Util.searchCard(hand,0,hand.size-1,flush[i],true))
                 }
                 allFlushes.add(tempList)
             }
@@ -258,7 +255,7 @@ public class President{
         for(royals in player.getRoyalFlush()){
             var tempList:MutableList<Int> = mutableListOf()
             for(i in 0..(royals.size-1)){
-                tempList.add(Util.searchExactCard(hand,0,hand.size-1,royals[i]))
+                tempList.add(Util.searchCard(hand,0,hand.size-1,royals[i],true))
             }
             indices.addAll(tempList)
             return
@@ -288,17 +285,15 @@ public class President{
         return false
     }
     private fun handleIdenticalCards(player: Player,hand: MutableList<Cards>,indices: MutableList<Int>,numIdentical:Int){
-        var searchVal = activeCards[0].getPerceivedValue()
         var firstEntriesOfIdenticalGroups:MutableList<Cards> = mutableListOf()
         when(numIdentical){
             2->firstEntriesOfIdenticalGroups=player.getFirstOfDoubles()
             3->firstEntriesOfIdenticalGroups=player.getFirstOfTriples()
             4->firstEntriesOfIdenticalGroups=player.getFirstOfQuads()
         }
-        val firstEntry=Util.searchCard(firstEntriesOfIdenticalGroups,0,firstEntriesOfIdenticalGroups.size-1,searchVal)
+        val firstEntry=Util.searchCard(firstEntriesOfIdenticalGroups,0,firstEntriesOfIdenticalGroups.size-1,activeCards[0])
         if(firstEntry!=-1){
-            searchVal =  firstEntriesOfIdenticalGroups[firstEntry].getPerceivedValue()
-            var indexFound = Util.searchCard(hand,0,hand.size-1,searchVal)
+            var indexFound = Util.searchCard(hand,0,hand.size-1,firstEntriesOfIdenticalGroups[firstEntry])
             for(i in 0..(numIdentical-1)){
                 indices.add(indexFound+i)
             }

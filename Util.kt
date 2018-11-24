@@ -49,37 +49,15 @@ object Util{
         }
         return cardName
     }
-    fun searchCard(hand:MutableList<Cards>,left:Int,right:Int,x:Int):Int{
-        if(left==right){
-            if(hand[left].getPerceivedValue()<x)return -1
-            return originalOrBetterValue(hand,left,x)
-        }else if(right-left==1){
-            when{
-                hand[left].getPerceivedValue()>=x -> return originalOrBetterValue(hand,left,x)
-                hand[right].getPerceivedValue()>=x -> return right
-                else->return -1
-            }
-        } else if(right>0 && left<right){
-            val mid=(right+left)/2
-            val midVal=hand[mid].getPerceivedValue()
-            if(midVal==x){
-                return originalOrBetterValue(hand,mid,x)
-            }else if(x<midVal){
-                return searchCard(hand,left,mid,x)
-            }else{
-                return searchCard(hand,mid,right,x)
-            }
-        }
-        return -1
-    }
-    fun searchExactCard(hand:MutableList<Cards>,left:Int,right:Int,card:Cards):Int{
+
+    fun searchCard(hand:MutableList<Cards>,left:Int,right:Int,card:Cards,exact:Boolean=false):Int{
         var x=card.getPerceivedValue()
         if(left==right){
             if(hand[left].getPerceivedValue()<x)return -1
-            return getSpecific(hand,left,card)
+            return getFurtherIndex(hand,left,card,exact)
         }else if(right-left==1){
             when{
-                hand[left].getPerceivedValue()>=x -> return getSpecific(hand,left,card)
+                hand[left].getPerceivedValue()>=x -> return getFurtherIndex(hand,left,card,exact)
                 hand[right].getPerceivedValue()>=x -> return right
                 else->return -1
             }
@@ -87,26 +65,28 @@ object Util{
             val mid=(right+left)/2
             val midVal=hand[mid].getPerceivedValue()
             if(midVal==x){
-                return getSpecific(hand,mid,card)
+                return getFurtherIndex(hand,mid,card,exact)
             }else if(x<midVal){
-                return searchExactCard(hand,left,mid,card)
+                return searchCard(hand,left,mid,card,exact)
             }else{
-                return searchExactCard(hand,mid,right,card)
+                return searchCard(hand,mid,right,card,exact)
             }
         }
         return -1
     }
-    fun getSpecific(hand: MutableList<Cards>,originalIndex: Int, card: Cards):Int{
-        var num:Int= originalOrBetterValue(hand,originalIndex,card.getPerceivedValue())
-        while(hand[num].getPerceivedValue()==card.getPerceivedValue()){
-            if(hand[num].getSuit() == card.getSuit()) break
-            else if (hand[num+1].getPerceivedValue()==card.getPerceivedValue()) num++
+    private fun getFurtherIndex(hand: MutableList<Cards>, originalIndex:Int, card: Cards, exact: Boolean):Int{
+        var num:Int= lowestIdenticalIndex(hand,originalIndex,card.getPerceivedValue())
+        if(exact){
+            while(hand[num].getPerceivedValue()==card.getPerceivedValue()){
+                if(hand[num].getSuit() == card.getSuit()) break
+                else if (hand[num+1].getPerceivedValue()==card.getPerceivedValue()) num++
+            }
         }
         return  num
     }
-    fun originalOrBetterValue(hand: MutableList<Cards>,originalIndex:Int, num:Int):Int{
+    private fun lowestIdenticalIndex(hand: MutableList<Cards>, originalIndex:Int, num:Int):Int{
         if(originalIndex!=0 && hand[originalIndex-1].getPerceivedValue()>=num){
-            return originalOrBetterValue(hand,originalIndex-1,num)
+            return lowestIdenticalIndex(hand,originalIndex-1,num)
         }
         return  originalIndex
     }

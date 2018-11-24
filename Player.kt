@@ -9,6 +9,7 @@ public class Player(private val hand:MutableList<Cards>){
     private var straightsInHand:MutableList<MutableList<Cards>> = mutableListOf()
     private var fullHouseInHand:MutableList<MutableList<Cards>> = mutableListOf()
     private var flushInHand:MutableMap<Suits,MutableList<Cards>> = mutableMapOf()
+    private var straightFlushInHand:MutableList<MutableList<Cards>> = mutableListOf()
 
     fun initializePlayer(){
         clearVar()
@@ -25,13 +26,15 @@ public class Player(private val hand:MutableList<Cards>){
         fullHouseInHand.clear()
         straightsInHand.clear()
         flushInHand.clear()
+        straightFlushInHand.clear()
     }
     private fun fiveCardCombos(){
-        initialStraights()
+        initialStraights(hand,straightsInHand)
         initialFullHouse()
         initializeFlush()
+        initializeStraightFlush()
     }
-    private fun initialStraights(){
+    private fun initialStraights(hand: MutableList<Cards>,straightsInHand:MutableList<MutableList<Cards>>){
         var straightHand:MutableList<Cards> = mutableListOf()
         var i:Int=0
         straightHand.add(hand[i])
@@ -86,6 +89,13 @@ public class Player(private val hand:MutableList<Cards>){
             flushInHand[suit]=hand.filter { it.getSuit() == suit }.toMutableList()
         }
     }
+    private fun initializeStraightFlush(){
+        for(flush in flushInHand){
+            if(flush.value.size>=5){
+                initialStraights(flush.value,straightFlushInHand)
+            }
+        }
+    }
     private fun initializeIdenticals(){
         for(i in 0..hand.size-2){
             //pairs
@@ -114,6 +124,7 @@ public class Player(private val hand:MutableList<Cards>){
     fun getFullHouse():MutableList<MutableList<Cards>> = fullHouseInHand
     fun getStraights():MutableList<MutableList<Cards>> = straightsInHand
     fun getFlush():MutableMap<Suits,MutableList<Cards>> = flushInHand
+    fun getStraightFlush():MutableList<MutableList<Cards>> = straightFlushInHand
     fun printDoublesInHand(){
         for(i in doublesInHand){
             Util.printCardsInLine(i)

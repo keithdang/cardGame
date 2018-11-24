@@ -1,6 +1,6 @@
 public class President{
     enum class fiveCardCombos{
-        NONE,STRAIGHT,FULLHOUSE,FLUSH
+        NONE,STRAIGHT,FULLHOUSE,FLUSH,STRAIGHTFLUSH
     }
     private val Players:MutableList<Player> = mutableListOf()
     private val activeCards:MutableList<Cards> = mutableListOf()
@@ -14,7 +14,8 @@ public class President{
 //        deck.shuffleDeck()
 //        deck.sortDeckFullHouseForEachPlayer()
 //        deck.sortDifferentStraightsForEachPlayer()
-        deck.sortFlushes()
+//        deck.sortFlushes()
+        deck.sortStraightFlushes()
         for(i in 1..4){
             Players.add(Player(deck.getDeck().subList((i-1)*13,i*13).toMutableList()))
             Util.sortHand(Players[i-1].getHand())
@@ -160,6 +161,7 @@ public class President{
             fiveCardCombos.FULLHOUSE->handleFullHouse(player,hand,indices)
             fiveCardCombos.STRAIGHT->handleStraights(player,hand,indices)
             fiveCardCombos.FLUSH->handleFlush(player,hand,indices)
+            fiveCardCombos.STRAIGHTFLUSH->handleStraightFlush(player,hand,indices)
             fiveCardCombos.NONE->println("ERROR: NONE FOUND")
         }
     }
@@ -216,7 +218,6 @@ public class President{
         }
     }
     private fun handleFlush(player: Player,hand: MutableList<Cards>,indices: MutableList<Int>){
-        var activeSuit=activeCards.last().getSuit()
         var allFlushes:MutableList<MutableList<Int>> = mutableListOf()
         for(flush in player.getFlush()){
             var flushLastVal = if (flush.value!!.size>=5) flush.value.last().getPerceivedValue() else continue
@@ -250,9 +251,46 @@ public class President{
             indices.addAll(allFlushes[highestFlush])
         }
     }
-
+    private fun handleStraightFlush(player: Player,hand: MutableList<Cards>,indices: MutableList<Int>){
+        var allStraightFlushes:MutableList<MutableList<Int>> = mutableListOf()
+        for(straightFlush in player.getStraightFlush()){
+            var flushLastVal = if (straightFlush.size>=5) straightFlush.last().getPerceivedValue() else continue
+            if(activeCards.last().getPerceivedValue() < flushLastVal){
+                var index=straightFlush.lastIndex
+                while(index > 4){
+                    if(activeCards.last().getPerceivedValue() < straightFlush[index].getPerceivedValue()){
+                        index--
+                    }else{
+                        break
+                    }
+                }
+                var tempList:MutableList<Int> = mutableListOf()
+                for(i in (index-4)..index){
+                    tempList.add(Util.searchExactCard(hand,0,hand.size-1,straightFlush[i]))
+                }
+                allStraightFlushes.add(tempList)
+            }
+        }
+        if(allStraightFlushes.size>0){
+            var highestFlush:Int=0
+            var count=0;
+            for(flush in allStraightFlushes){
+                if(highestFlush != 0){
+                    if(hand[flush.last()].getPerceivedValue()>hand[allStraightFlushes[highestFlush].last()].getPerceivedValue()){
+                        highestFlush=count
+                    }
+                }
+                count++
+            }
+            indices.addAll(allStraightFlushes[highestFlush])
+        }
+    }
 
     private fun handleFiveCardCombinations(hand: MutableList<Cards>,indices: MutableList<Int>):Boolean{
+        if(PokerHands.checkIfStraightFlush(hand,indices)){
+            activeFiveCardState=fiveCardCombos.STRAIGHTFLUSH
+            return true
+        }
         if(PokerHands.checkIfStraight(hand,indices)){
             activeFiveCardState=fiveCardCombos.STRAIGHT
             return true

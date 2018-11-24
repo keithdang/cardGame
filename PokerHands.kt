@@ -10,6 +10,19 @@ object PokerHands{
         println("Hello World")
         return true
     }
+    fun checkIfStraightFlush(hand: MutableList<Cards>,indices: MutableList<Int>):Boolean{
+        var suit=hand[indices[0]].getSuit()
+//        if(!hand.all { it.getSuit()==suit }) return false
+        for(i in 0..(indices.size-2)){
+            var firstIndex=indices[i]
+            var secondIndex=indices[i+1]
+            if(hand[firstIndex].getPerceivedValue()!=(hand[secondIndex].getPerceivedValue()-1) && hand[firstIndex].getSuit()==suit){
+                return false
+            }
+        }
+        println("Hello World")
+        return true
+    }
     fun isFullHouse(hand: MutableList<Cards>,indices: MutableList<Int>):Boolean{
         var tempHand = Util.sortedSelectedList(hand,indices)
         if(tempHand[0].getPerceivedValue()==tempHand[1].getPerceivedValue()){

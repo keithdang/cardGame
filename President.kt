@@ -46,15 +46,16 @@ public class President{
 
         if(indices.isNotEmpty() && indices[0]!=-1){
             Util.printIndicesOfHand(indices,hand)
-            if(activeCards.size>0 && activeCards[0].getPerceivedValue()==hand[indices[0]].getPerceivedValue()){
+            if(burned(hand,indices)){
                 println("BURN")
                 goAgain=true
                 activeCards.clear()
             }else{
+                activeCards.clear()
                 addEntriesIntoActiveCards(indices,hand)
             }
             Util.removeAllIndicesFromHand(indices,hand)
-            if(goAgain) playerTurn(num)
+            if(goAgain && hand.size>0) playerTurn(num)
             turnCount=1
         }else{
             println("Player ${num} couldn't go")
@@ -283,5 +284,15 @@ public class President{
             }
         }
     }
-
+    private fun burned(hand: MutableList<Cards>,indices: List<Int>):Boolean{
+        if(activeCards.size==0 || activeCards.size != indices.size){
+            return false
+        }
+        for(i in 0..(indices.size-1)){
+            if(activeCards[i].getPerceivedValue() != hand[indices[i]].getPerceivedValue()){
+                return false
+            }
+        }
+        return true
+    }
 }

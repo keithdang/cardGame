@@ -8,6 +8,7 @@ public class Player(private val hand:MutableList<Cards>){
     private var firstCardOfQuadsInHand:MutableList<Cards> = mutableListOf()
     private var straightsInHand:MutableList<MutableList<Cards>> = mutableListOf()
     private var fullHouseInHand:MutableList<MutableList<Cards>> = mutableListOf()
+    private var flushInHand:MutableMap<Suits,MutableList<Cards>> = mutableMapOf()
 
     fun initializePlayer(){
         clearVar()
@@ -23,10 +24,12 @@ public class Player(private val hand:MutableList<Cards>){
         firstCardOfTriplesInHand.clear()
         fullHouseInHand.clear()
         straightsInHand.clear()
+        flushInHand.clear()
     }
     private fun fiveCardCombos(){
         initialStraights()
         initialFullHouse()
+        initializeFlush()
     }
     private fun initialStraights(){
         var straightHand:MutableList<Cards> = mutableListOf()
@@ -78,6 +81,11 @@ public class Player(private val hand:MutableList<Cards>){
             }
         }
     }
+    private fun initializeFlush(){
+        for(suit in Suits.values()){
+            flushInHand[suit]=hand.filter { it.getSuit() == suit }.toMutableList()
+        }
+    }
     private fun initializeIdenticals(){
         for(i in 0..hand.size-2){
             //pairs
@@ -105,6 +113,7 @@ public class Player(private val hand:MutableList<Cards>){
     fun getFirstOfQuads():MutableList<Cards> = firstCardOfTriplesInHand
     fun getFullHouse():MutableList<MutableList<Cards>> = fullHouseInHand
     fun getStraights():MutableList<MutableList<Cards>> = straightsInHand
+    fun getFlush():MutableMap<Suits,MutableList<Cards>> = flushInHand
     fun printDoublesInHand(){
         for(i in doublesInHand){
             Util.printCardsInLine(i)

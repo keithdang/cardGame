@@ -34,6 +34,16 @@ public class Deck(styleValue:String.()->Int){
         Util.swap(7,15,cards)
         Util.swap(29,43,cards)
     }
+    fun sortFlushes(){
+        sortDeckOriginal()
+
+//        Util.swap(7,16,cards)
+        Util.swap(8,17,cards)
+        Util.swap(9,18,cards)
+        Util.swap(10,19,cards)
+//        Util.swap(5,20,cards)
+        Util.swap(12,21,cards)
+    }
     fun printDeck(){
         Util.printCardsInLine(cards)
         println()

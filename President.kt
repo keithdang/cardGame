@@ -216,22 +216,37 @@ public class President{
     }
     private fun handleFlush(player: Player,hand: MutableList<Cards>,indices: MutableList<Int>){
         var activeSuit=activeCards.last().getSuit()
-        var flush:MutableList<Cards>? = player.getFlush()[activeSuit]
-        var flushLastVal = if (flush!!.size>=5) flush.last().getPerceivedValue() else return
-        if(activeCards.last().getPerceivedValue() < flushLastVal){
-            var index=flush.lastIndex
-            while(index > 4){
-                if(activeCards.last().getPerceivedValue() < flush[index].getPerceivedValue()){
-                    index--
+        var allFlushes:MutableList<MutableList<Int>> = mutableListOf()
+        for(flush in player.getFlush()){
+            var flushLastVal = if (flush.value!!.size>=5) flush.value.last().getPerceivedValue() else continue
+            if(activeCards.last().getPerceivedValue() < flushLastVal){
+                var index=flush.value.lastIndex
+                while(index > 4){
+                    if(activeCards.last().getPerceivedValue() < flush.value[index].getPerceivedValue()){
+                        index--
+                    }else{
+                        break
+                    }
                 }
-                break
+                var tempList:MutableList<Int> = mutableListOf()
+                for(i in (index-4)..index){
+                    tempList.add(Util.searchExactCard(hand,0,hand.size-1,flush.value[i]))
+                }
+                allFlushes.add(tempList)
             }
-            var tempList:MutableList<Int> = mutableListOf()
-            for(i in (index-4)..index){
-                tempList.add(Util.searchExactCard(hand,0,hand.size-1,flush[i]))
+        }
+        if(allFlushes.size>0){
+            var highestFlush:Int=0
+            var count=0;
+            for(flush in allFlushes){
+                if(highestFlush != 0){
+                    if(hand[flush.last()].getPerceivedValue()>hand[allFlushes[highestFlush].last()].getPerceivedValue()){
+                        highestFlush=count
+                    }
+                }
+                count++
             }
-            indices.addAll(tempList)
-            println("FLUSH")
+            indices.addAll(allFlushes[highestFlush])
         }
     }
 

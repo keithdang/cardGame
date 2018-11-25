@@ -1,39 +1,39 @@
 //820
 public class President{
-    enum class fiveCardCombos{
+    enum class FiveCardCombos{
         NONE,STRAIGHT,FULL_HOUSE,FLUSH,STRAIGHT_FLUSH,ROYAL_FLUSH
     }
-    private val Players:MutableList<Player> = mutableListOf()
+    private val players:MutableList<Player> = mutableListOf()
     private val activeCards:MutableList<Cards> = mutableListOf()
-    private var activeFiveCardState:fiveCardCombos=fiveCardCombos.NONE
+    private var activeFiveCardState:FiveCardCombos=FiveCardCombos.NONE
     private val presValue:String.()->Int={
         presConvert(this)
     }
     private var turnCount=1
     init{
         val deck=Deck(presValue)
-//        deck.shuffleDeck()
+        deck.shuffleDeck()
 //        deck.sortDeckFullHouseForEachPlayer()
-        deck.sortDifferentStraightsForEachPlayer()
+//        deck.sortDifferentStraightsForEachPlayer()
 //        deck.sortFlushes()
 //        deck.sortStraightFlushes()
 //        deck.sortDeckOriginal()
         for(i in 1..4){
-            Players.add(Player(deck.getDeck().subList((i-1)*13,i*13).toMutableList()))
-            Util.sortHand(Players[i-1].getHand())
-            Util.printCardsInLine(Players[i-1].getHand())
-            Players[i-1].initializePlayer()
+            players.add(Player(deck.getDeck().subList((i-1)*13,i*13).toMutableList()))
+            Util.sortHand(players[i-1].getHand())
+            Util.printCardsInLine(players[i-1].getHand())
+            players[i-1].initializePlayer()
         }
     }
     fun start(){
         println("President")
         var gameContinue=true
         while(gameContinue){
-            for(i in 1..Players.size){
+            for(i in 1..players.size){
                 playerTurn(i)
-                if(Players[i-1].getHand().size==0){
+                if(players[i-1].getHand().size==0){
                     gameContinue=false
-                    println("Player ${i} wins")
+                    println("Player $i wins")
                     break
                 }
             }
@@ -41,7 +41,7 @@ public class President{
     }
     private fun playerTurn(num:Int){
         print("Player: $num\n")
-        val hand=Players[num-1].getHand()
+        val hand=players[num-1].getHand()
         Util.printCardsInLine(hand)
         var goAgain=false
         if(turnCount==4) activeCards.clear()
@@ -61,13 +61,13 @@ public class President{
             if(goAgain && hand.size>0) playerTurn(num)
             turnCount=1
         }else{
-            println("Player ${num} couldn't go")
+            println("Player $num couldn't go")
             turnCount++
         }
     }
     private fun getIndex(playerNum:Int):MutableList<Int>{
         var indices:MutableList<Int> = mutableListOf()
-        val player=Players[playerNum-1]
+        val player=players[playerNum-1]
         player.initializePlayer()
         val hand:MutableList<Cards> =  player.getHand()
         if(activeCards.size==0 || hand[hand.size-1].getPerceivedValue() >= activeCards[0].getPerceivedValue()){
@@ -91,14 +91,19 @@ public class President{
         var numList:MutableList<Int> = mutableListOf()
         val input=readLine()!!
         val inputList=input.split(",").toMutableList()
+        var numIndices:MutableList<Int> = mutableListOf()
+        if(inputList.size>1){
+            numIndices=inputList.map { it.toInt()-1 }.toMutableList()
+        }
         when(inputList.size){
             1->{
                 when{
                     inputList[0].equals("s")->numList.add(-1)
                     activeCards.size>1->numList=inputCard(hand)
                     inputList[0].toIntOrNull() != null-> {
+                        var numIndex:Int=input.toInt()-1
                         when {
-                            checkValidEntry(input,hand)->numList.add(input.toInt()-1)
+                            checkValidEntry(numIndex,hand)->numList.add(numIndex)
                             else->numList=inputCard(hand)
                         }
                     }
@@ -107,15 +112,14 @@ public class President{
             }
             2,3,4->{
                 when{
-                    inputList.all { checkValidEntry(it,hand) } && checkIfIndicesHaveSameCardPerceivedValue(inputList,hand)->numList=inputList.map{it.toInt()-1}.toMutableList()
+                    numIndices.all { checkValidEntry(it,hand) } && checkIfIndicesHaveSameCardPerceivedValue(numIndices,hand)->numList=numIndices
                     else->numList=inputCard(hand)
                 }
             }
             5->{
-                var numIndices=inputList.map { it.toInt()-1 }.toMutableList()
                 numIndices.sortBy { it }
                 when{
-                    handleFiveCardCombinations(hand,numIndices)->numList=inputList.map{it.toInt()-1}.toMutableList()
+                    handleFiveCardCombinations(hand,numIndices)->numList=numIndices
                     else->numList=inputCard(hand)
                 }
             }
@@ -123,15 +127,18 @@ public class President{
         }
         //if user is able to select a new card combination thats not length 5 and it wasn't a skip
         if(numList.size<5  && numList[0]!=-1){
-            activeFiveCardState=fiveCardCombos.NONE
+            activeFiveCardState=FiveCardCombos.NONE
         }
         return numList
     }
-    private fun checkValidEntry(input:String,hand: MutableList<Cards>):Boolean = input.toInt() in 1..hand.size && (activeCards.size == 0 || hand[input.toInt() - 1].getPerceivedValue() >= activeCards[0].getPerceivedValue())
-    private fun checkIfIndicesHaveSameCardPerceivedValue(indices: MutableList<String>, hand: MutableList<Cards>):Boolean{
-        val cardVal=hand[indices[0].toInt()-1].getPerceivedValue()
+    private fun checkValidEntry(input:Int,hand: MutableList<Cards>):Boolean =
+            input in 0..(hand.size-1) && (activeCards.size == 0
+                    || hand[input].getPerceivedValue() >= activeCards[0].getPerceivedValue())
+
+    private fun checkIfIndicesHaveSameCardPerceivedValue(indices: MutableList<Int>, hand: MutableList<Cards>):Boolean{
+        val cardVal=hand[indices[0]].getPerceivedValue()
         for(i in indices){
-            if(hand[i.toInt()-1].getPerceivedValue() != cardVal){
+            if(hand[i].getPerceivedValue() != cardVal){
                 return false
             }
         }
@@ -157,17 +164,17 @@ public class President{
     }
     private fun computerDetectFiveCardCombos(player: Player,hand: MutableList<Cards>,indices: MutableList<Int>){
         when(activeFiveCardState){
-            fiveCardCombos.FULL_HOUSE->handleFullHouse(player,hand,indices)
-            fiveCardCombos.STRAIGHT->handleStraights(player,hand,indices)
-            fiveCardCombos.FLUSH->handleFlush(player,hand,indices,player.getFlush())
-            fiveCardCombos.STRAIGHT_FLUSH->handleFlush(player,hand,indices,player.getStraightFlush())
-            fiveCardCombos.ROYAL_FLUSH->handleRoyalFlush(player,hand,indices)
-            fiveCardCombos.NONE->println("ERROR: NONE FOUND")
+            FiveCardCombos.FULL_HOUSE->handleFullHouse(player.getFullHouse(),hand,indices)
+            FiveCardCombos.STRAIGHT->handleStraights(player.getStraights(),hand,indices)
+            FiveCardCombos.FLUSH->handleFlush(hand,indices,player.getFlush())
+            FiveCardCombos.STRAIGHT_FLUSH->handleFlush(hand,indices,player.getStraightFlush())
+            FiveCardCombos.ROYAL_FLUSH->handleRoyalFlush(player.getRoyalFlush(),hand,indices)
+            FiveCardCombos.NONE->println("ERROR: NONE FOUND")
         }
     }
-    private fun handleFullHouse(player: Player,hand: MutableList<Cards>,indices: MutableList<Int>){
-        if(player.getFullHouse().size>0){
-            for(fullHouse in player.getFullHouse()){
+    private fun handleFullHouse(fullHouseHands: MutableList<MutableList<Cards>>,hand: MutableList<Cards>,indices: MutableList<Int>){
+        if(fullHouseHands.size>0){
+            for(fullHouse in fullHouseHands){
                 var acIndices=PokerHands.tripleAndDoubleInFullHouse(activeCards)
                 if(acIndices.first!=-1 && fullHouse[0].getPerceivedValue() > activeCards[acIndices.first].getPerceivedValue()){
                     var tripleEntryOfHand=Util.searchCard(hand,0,hand.size-1,fullHouse[0])
@@ -182,9 +189,9 @@ public class President{
             }
         }
     }
-    private fun handleStraights(player: Player,hand: MutableList<Cards>,indices: MutableList<Int>){
-        if(player.getStraights().size>0){
-            for(straight in player.getStraights()){
+    private fun handleStraights(straights: MutableList<MutableList<Cards>>,hand: MutableList<Cards>,indices: MutableList<Int>){
+        if(straights.size>0){
+            for(straight in straights){
                 if(straight.last().getPerceivedValue()>=activeCards.last().getPerceivedValue()){
                     var index=0
                     while((straight.size-(index+1))>=5){
@@ -217,7 +224,7 @@ public class President{
             }
         }
     }
-    private fun handleFlush(player: Player, hand: MutableList<Cards>, indices: MutableList<Int>, list: MutableList<MutableList<Cards>>){
+    private fun handleFlush(hand: MutableList<Cards>, indices: MutableList<Int>, list: MutableList<MutableList<Cards>>){
         var allFlushes:MutableList<MutableList<Int>> = mutableListOf()
         for(flush in list){
             var flushLastVal = if (flush!!.size>=5) flush.last().getPerceivedValue() else continue
@@ -251,8 +258,8 @@ public class President{
             indices.addAll(allFlushes[highestFlush])
         }
     }
-    private fun handleRoyalFlush(player: Player,hand: MutableList<Cards>,indices: MutableList<Int>){
-        for(royals in player.getRoyalFlush()){
+    private fun handleRoyalFlush(listOfRoyals:MutableList<MutableList<Cards>>,hand: MutableList<Cards>,indices: MutableList<Int>){
+        for(royals in listOfRoyals){
             var tempList:MutableList<Int> = mutableListOf()
             for(i in 0..(royals.size-1)){
                 tempList.add(Util.searchCard(hand,0,hand.size-1,royals[i],true))
@@ -263,37 +270,38 @@ public class President{
     }
     private fun handleFiveCardCombinations(hand: MutableList<Cards>,indices: MutableList<Int>):Boolean{
         if(PokerHands.checkIfRoyal(hand,indices)){
-            activeFiveCardState=fiveCardCombos.ROYAL_FLUSH
+            activeFiveCardState=FiveCardCombos.ROYAL_FLUSH
             return true
         }
         if(PokerHands.checkIfStraightFlush(hand,indices)){
-            activeFiveCardState=fiveCardCombos.STRAIGHT_FLUSH
+            activeFiveCardState=FiveCardCombos.STRAIGHT_FLUSH
             return true
         }
         if(PokerHands.checkIfStraight(hand,indices)){
-            activeFiveCardState=fiveCardCombos.STRAIGHT
+            activeFiveCardState=FiveCardCombos.STRAIGHT
             return true
         }
         if(PokerHands.isFullHouse(hand,indices)){
-            activeFiveCardState=fiveCardCombos.FULL_HOUSE
+            activeFiveCardState=FiveCardCombos.FULL_HOUSE
             return true
         }
         if(PokerHands.isFlush(hand,indices)){
-            activeFiveCardState=fiveCardCombos.FLUSH
+            activeFiveCardState=FiveCardCombos.FLUSH
             return true
         }
         return false
     }
     private fun handleIdenticalCards(player: Player,hand: MutableList<Cards>,indices: MutableList<Int>,numIdentical:Int){
-        var firstEntriesOfIdenticalGroups:MutableList<Cards> = mutableListOf()
+        var identicals:MutableList<MutableList<Cards>> = mutableListOf()
         when(numIdentical){
-            2->firstEntriesOfIdenticalGroups=player.getFirstOfDoubles()
-            3->firstEntriesOfIdenticalGroups=player.getFirstOfTriples()
-            4->firstEntriesOfIdenticalGroups=player.getFirstOfQuads()
+            2->identicals=player.getDoubles()
+            3->identicals=player.getTriples()
+            4->identicals=player.getQuads()
         }
-        val firstEntry=Util.searchCard(firstEntriesOfIdenticalGroups,0,firstEntriesOfIdenticalGroups.size-1,activeCards[0])
+        var identicalFirstEntries= identicals.map{it[0]}.toMutableList()
+        val firstEntry=Util.searchCard(identicalFirstEntries,0,identicalFirstEntries.size-1,activeCards[0])
         if(firstEntry!=-1){
-            var indexFound = Util.searchCard(hand,0,hand.size-1,firstEntriesOfIdenticalGroups[firstEntry])
+            var indexFound = Util.searchCard(hand,0,hand.size-1,identicalFirstEntries[firstEntry])
             for(i in 0..(numIdentical-1)){
                 indices.add(indexFound+i)
             }

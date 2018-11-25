@@ -82,7 +82,7 @@ object Util{
                 else if (hand[num+1].getPerceivedValue()==card.getPerceivedValue()) num++
             }
         }
-        return  num
+        return num
     }
     private fun lowestIdenticalIndex(hand: MutableList<Cards>, originalIndex:Int, num:Int):Int{
         if(originalIndex!=0 && hand[originalIndex-1].getPerceivedValue()>=num){

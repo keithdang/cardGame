@@ -172,7 +172,7 @@ public class President{
         }
     }
     private fun handleFullHouse(fullHouseHands: MutableList<MutableList<Cards>>,hand: MutableList<Cards>,indices: MutableList<Int>){
-        if(fullHouseHands.size>0){
+        if(fullHouseHands.isNotEmpty()){
             for(fullHouse in fullHouseHands){
                 var acIndices=PokerHands.tripleAndDoubleInFullHouse(activeCards)
                 if(acIndices.first!=-1 && fullHouse[0]>activeCards[acIndices.first]){
@@ -189,9 +189,9 @@ public class President{
         }
     }
     private fun handleStraights(straights: MutableList<MutableList<Cards>>,hand: MutableList<Cards>,indices: MutableList<Int>){
-        if(straights.size>0){
+        if(straights.isNotEmpty()){
             for(straight in straights){
-                if(straight.last().getPerceivedValue()>=activeCards.last().getPerceivedValue()){
+                if(straight.last()>=activeCards.last()){
                     var index=0
                     while((straight.size-(index+1))>=5){
                         if(straight[index]<activeCards[0]){
@@ -243,7 +243,7 @@ public class President{
                 allFlushes.add(tempList)
             }
         }
-        if(allFlushes.size>0){
+        if(allFlushes.isNotEmpty()){
             var highestFlush:Int=0
             var count=0;
             for(flush in allFlushes){

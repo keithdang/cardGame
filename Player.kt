@@ -65,7 +65,7 @@ public class Player(private val hand:MutableList<Cards>){
         }
     }
     private fun initialFullHouse(){
-        if(doublesInHand.size>0 && triplesInHand.size>0){
+        if(doublesInHand.isNotEmpty() && triplesInHand.isNotEmpty()){
             for(i in triplesInHand){
                 for(j in doublesInHand){
                     if(i[0].getPerceivedValue()!=j[0].getPerceivedValue()){

@@ -70,7 +70,7 @@ public class President{
         val player=players[playerNum-1]
         player.initializePlayer()
         val hand:MutableList<Cards> =  player.getHand()
-        if(activeCards.isEmpty()|| Util.firstIsGreaterEqual(hand.last(),activeCards[0])){
+        if(activeCards.isEmpty() || hand.last() >= activeCards[0]){
             if(playerNum==1){
                 indices=inputCard(hand)
             }else{
@@ -132,7 +132,7 @@ public class President{
         return numList
     }
     private fun checkValidEntry(input:Int,hand: MutableList<Cards>):Boolean =
-            input in 0..(hand.size-1) && (activeCards.isEmpty() || Util.firstIsGreaterEqual(hand[input],activeCards[0]))
+            input in 0..(hand.size-1) && (activeCards.isEmpty() || hand[input]>=activeCards[0])
 
     private fun checkIfIndicesHaveSameCardPerceivedValue(indices: MutableList<Int>, hand: MutableList<Cards>):Boolean{
         val cardVal=hand[indices[0]].getPerceivedValue()
@@ -175,7 +175,7 @@ public class President{
         if(fullHouseHands.size>0){
             for(fullHouse in fullHouseHands){
                 var acIndices=PokerHands.tripleAndDoubleInFullHouse(activeCards)
-                if(acIndices.first!=-1 && Util.firstIsGreater(fullHouse[0],activeCards[acIndices.first])){
+                if(acIndices.first!=-1 && fullHouse[0]>activeCards[acIndices.first]){
                     var tripleEntryOfHand=Util.searchCard(hand,0,hand.size-1,fullHouse[0])
                     if(tripleEntryOfHand!=-1){
                         var doubleEntryOfHand=Util.searchCard(hand,0,hand.size-1,fullHouse[3])
@@ -194,7 +194,7 @@ public class President{
                 if(straight.last().getPerceivedValue()>=activeCards.last().getPerceivedValue()){
                     var index=0
                     while((straight.size-(index+1))>=5){
-                        if(!Util.firstIsGreater(straight[index],activeCards[0])){
+                        if(straight[index]<activeCards[0]){
                             index++
                         }else{
                             break
@@ -230,7 +230,7 @@ public class President{
             if(activeCards.last().getPerceivedValue() < flushLastVal){
                 var index=flush.lastIndex
                 while(index > 4){
-                    if(Util.firstIsLess(activeCards.last(),flush[index])){
+                    if(activeCards.last()<flush[index]){
                         index--
                     }else{
                         break
@@ -247,11 +247,7 @@ public class President{
             var highestFlush:Int=0
             var count=0;
             for(flush in allFlushes){
-                if(highestFlush != 0){
-                    if(Util.firstIsGreater(hand[flush.last()],hand[allFlushes[highestFlush].last()])){
-                        highestFlush=count
-                    }
-                }
+                if(highestFlush != 0 && hand[flush.last()]>hand[allFlushes[highestFlush].last()]) highestFlush=count
                 count++
             }
             indices.addAll(allFlushes[highestFlush])
@@ -268,7 +264,7 @@ public class President{
         }
     }
     private fun handleFiveCardCombinations(hand: MutableList<Cards>,indices: MutableList<Int>):Boolean{
-        var isValidCombo:Boolean=true
+        var isValidCombo=true
         when{
             PokerHands.checkIfRoyal(hand,indices)->activeFiveCardState=FiveCardCombos.ROYAL_FLUSH
             PokerHands.checkIfStraightFlush(hand,indices)->activeFiveCardState=FiveCardCombos.STRAIGHT_FLUSH
@@ -303,5 +299,8 @@ public class President{
             }
         }
         return true
+    }
+    private operator fun Cards.compareTo(other:Cards):Int{
+        return this.getPerceivedValue()-other.getPerceivedValue()
     }
 }

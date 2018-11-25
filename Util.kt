@@ -97,7 +97,10 @@ object Util{
         }
         return list.toList()
     }
-
+    fun perceivedEquals(first:Cards, second: Cards):Boolean = first.getPerceivedValue()==second.getPerceivedValue()
+    fun firstIsGreaterEqual(first:Cards, second: Cards):Boolean = first.getPerceivedValue()>=second.getPerceivedValue()
+    fun firstIsGreater(first:Cards, second: Cards):Boolean = first.getPerceivedValue()>second.getPerceivedValue()
+    fun firstIsLess(first:Cards, second: Cards):Boolean = first.getPerceivedValue()<second.getPerceivedValue()
     fun firstIndexGreaterPerceived(num1: Int,num2: Int, hand: MutableList<Cards>):Boolean{
         return hand[num1].getPerceivedValue()>hand[num2].getPerceivedValue()
     }

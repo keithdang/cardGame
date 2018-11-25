@@ -98,13 +98,13 @@ public class Player(private val hand:MutableList<Cards>){
     }
     private fun initializeIdenticals(){
         for(i in 0..hand.size-2){
-            if(hand[i].getPerceivedValue()==hand[i+1].getPerceivedValue())
+            if(Util.perceivedEquals(hand[i],hand[i+1]))
             {
                 doublesInHand.add(mutableListOf(hand[i],hand[i+1]))
-                if(i+2<hand.size && hand[i].getPerceivedValue()==hand[i+2].getPerceivedValue())
+                if(i+2<hand.size && Util.perceivedEquals(hand[i],hand[i+2]))
                 {
                     triplesInHand.add(mutableListOf(hand[i],hand[i+1],hand[i+2]))
-                    if(i+3<hand.size && hand[i].getPerceivedValue()==hand[i+3].getPerceivedValue())
+                    if(i+3<hand.size && Util.perceivedEquals(hand[i],hand[i+3]))
                     {
                         quadsInHand.add(mutableListOf(hand[i],hand[i+1],hand[i+2]))
                     }
